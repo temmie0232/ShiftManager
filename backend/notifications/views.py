@@ -10,7 +10,7 @@ from PIL import Image
 import tempfile
 import os
 from django.core.files import File
-from backend.notifications.models import ShiftNotification, ShiftSubmissionForm
+from notifications.models import ShiftNotification, ShiftSubmissionForm
 
 # LINE Bot APIの初期化
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
