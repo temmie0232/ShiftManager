@@ -11,6 +11,7 @@ import tempfile
 import os
 from django.core.files import File
 from notifications.models import ShiftNotification, ShiftSubmissionForm
+from django.utils import timezone
 
 # LINE Bot APIの初期化
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
@@ -19,26 +20,60 @@ GROUP_ID = os.getenv('LINE_GROUP_ID')
 # シフト提出フォームの送信エンドポイント
 @csrf_exempt  # CSRFトークン検証を無効化
 @api_view(['POST'])  # POSTメソッドのみ許可
-@parser_classes([MultiPartParser, FormParser])  # マルチパートフォームデータの解析を許可
 def send_shift_form(request):
     try:
+        # リクエストデータをログに出力
+        print("Received data:", request.data)
+        
+        # バリデーション
+        if not request.data.get('message'):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'メッセージは必須です'
+            }, status=400)
+        
+        if not request.data.get('form_url'):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'フォームURLは必須です'
+            }, status=400)
+
         # フォームデータをデータベースに保存
         form = ShiftSubmissionForm.objects.create(
-            deadline=request.POST.get('deadline'),
-            form_url=request.POST.get('form_url'),
-            message=request.POST.get('message'),
-            is_template=request.POST.get('is_template', True)
+            deadline=timezone.now() + timezone.timedelta(days=30),  # デフォルトの期限を1週間後に設定
+            form_url=request.data['form_url'],
+            message=request.data['message'],
+            is_template=request.data.get('is_template', True)
         )
+
+        # LINE BOTの初期化を確認
+        if not os.getenv('LINE_CHANNEL_ACCESS_TOKEN'):
+            raise ValueError("LINE_CHANNEL_ACCESS_TOKEN が設定されていません")
+        if not os.getenv('LINE_GROUP_ID'):
+            raise ValueError("LINE_GROUP_ID が設定されていません")
+        
+        line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
         
         # LINEグループにメッセージとURLを送信
         line_bot_api.push_message(
-            GROUP_ID,
+            os.getenv('LINE_GROUP_ID'),
             TextSendMessage(text=f"{form.message}\n{form.form_url}")
         )
         
         return JsonResponse({'status': 'success'})
+        
+    except ValueError as ve:
+        print("Validation error:", str(ve))
+        return JsonResponse({
+            'status': 'error',
+            'message': str(ve)
+        }, status=400)
     except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        print("Server error:", str(e))
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 # シフト通知の送信エンドポイント
 @csrf_exempt
