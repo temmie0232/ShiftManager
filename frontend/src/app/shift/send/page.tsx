@@ -1,5 +1,5 @@
 "use client"
-// 必要なコンポーネントとhooksのインポート
+
 import { useState, useRef } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,30 @@ export default function ShiftSendPage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);  // 選択されたファイル
     const [error, setError] = useState("");  // エラーメッセージ
     const fileInputRef = useRef<HTMLInputElement>(null);  // ファイル入力のref
+    // ドラッグ&ドロップの状態管理を追加
+    const [isDragging, setIsDragging] = useState(false);
+
+    // ドラッグ&ドロップのイベントハンドラ
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+    };
 
     // ファイル選択時の共通処理
     const handleFile = (file: File) => {
@@ -75,7 +99,13 @@ export default function ShiftSendPage() {
                                     <label className="text-sm font-medium text-gray-700 block">
                                         PDFファイル
                                     </label>
-                                    <div className="relative mt-1 flex items-center justify-center w-full">
+                                    {/* ドラッグ&ドロップエリアを追加 */}
+                                    <div
+                                        className="relative mt-1 flex items-center justify-center w-full"
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                    >
                                         <input
                                             ref={fileInputRef}
                                             type="file"
@@ -107,15 +137,19 @@ export default function ShiftSendPage() {
                                                 </div>
                                             </div>
                                         ) : (
-                                            // ファイル選択前の表示
+                                            // ファイル選択前の表示（ドラッグ&ドロップ対応）
                                             <label
                                                 htmlFor="pdf"
-                                                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer border-gray-300 bg-gray-50 hover:bg-gray-100"
+                                                className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer
+                                                    ${isDragging
+                                                        ? 'border-blue-500 bg-blue-50'
+                                                        : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
+                                                    }`}
                                             >
                                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <Upload className="w-8 h-8 mb-2 text-gray-500" />
+                                                    <Upload className={`w-8 h-8 mb-2 ${isDragging ? 'text-blue-500' : 'text-gray-500'}`} />
                                                     <p className="text-sm text-gray-500">
-                                                        クリックしてPDFファイルを選択
+                                                        クリックまたはドラッグ＆ドロップでPDFファイルを選択
                                                     </p>
                                                 </div>
                                             </label>
