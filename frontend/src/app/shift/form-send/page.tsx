@@ -76,7 +76,7 @@ export default function ShiftFormSendPage() {
                             <Send className="w-6 h-6 text-gray-600" />
                         </div>
                         <div className="space-y-2">
-                            <CardTitle className="font-semibold">シフト提出フォームの送信</CardTitle>
+                            <CardTitle className="font-semibold text-2xl">シフト提出フォームの送信</CardTitle>
                             <CardDescription className="text-gray-600">
                                 LINEグループにシフト提出フォームのURLを送信します
                             </CardDescription>
@@ -96,7 +96,7 @@ export default function ShiftFormSendPage() {
                                     <textarea
                                         id="message"
                                         className="flex min-h-[160px] w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
-                                        placeholder="シフト提出フォームと一緒に送信するメッセージを入力してください"
+                                        placeholder="URLと一緒に送信するメッセージを入力してください (例:15日までに入力お願いします。)"
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
                                         disabled={isLoading}
