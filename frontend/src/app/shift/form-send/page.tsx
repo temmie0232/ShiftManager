@@ -1,5 +1,5 @@
-import React from "react";
-import { useState } from "react";  // 状態管理のためのフック
+"use client"
+import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Send, ArrowLeft } from "lucide-react";
@@ -63,20 +63,21 @@ export default function ShiftFormSendPage() {
                 {/* ナビゲーションリンク */}
                 <Link
                     href="/home"
-                    className="inline-flex items-center gap-2 text-sm text-gray-600"
+                    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
                 >
-                    <ArrowLeft className="w-4 h-4" />
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                     ホームに戻る
                 </Link>
 
-                <Card>
-                    <CardHeader>
+                <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
+                    <CardHeader className="space-y-4">
+                        {/* アイコンを含む丸いコンテナ */}
                         <div className="rounded-lg w-12 h-12 flex items-center justify-center bg-gray-100 mb-4">
                             <Send className="w-6 h-6 text-gray-600" />
                         </div>
                         <div className="space-y-2">
-                            <CardTitle>シフト提出フォームの送信</CardTitle>
-                            <CardDescription>
+                            <CardTitle className="font-semibold">シフト提出フォームの送信</CardTitle>
+                            <CardDescription className="text-gray-600">
                                 LINEグループにシフト提出フォームのURLを送信します
                             </CardDescription>
                         </div>
@@ -94,7 +95,7 @@ export default function ShiftFormSendPage() {
                                     </label>
                                     <textarea
                                         id="message"
-                                        className="flex min-h-[160px] w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm"
+                                        className="flex min-h-[160px] w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
                                         placeholder="シフト提出フォームと一緒に送信するメッセージを入力してください"
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
@@ -122,7 +123,7 @@ export default function ShiftFormSendPage() {
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full"
+                                className="w-full bg-gray-900 hover:bg-gray-800 text-white transition-colors"
                             >
                                 {isLoading ? (
                                     <div className="flex items-center justify-center gap-2">
