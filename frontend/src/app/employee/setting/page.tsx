@@ -42,6 +42,9 @@ export default function EmployeeSettingPage() {
     // エラーの状態管理
     const [error, setError] = useState("");
 
+    // ダイアログの表示状態を管理
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
     // フォームの状態を管理するstate
     const [formData, setFormData] = useState<EmployeeForm>(initialFormState);
 
@@ -72,10 +75,82 @@ export default function EmployeeSettingPage() {
         }
     };
 
-    // 従業員の編集ボタンクリックハンドラ
-    const handleEditClick = (employee: Employee) => {
-        // あとで実装
-        console.log("Edit employee:", employee);
+    // ダイアログを開く処理
+    const handleOpenDialog = (employee?: Employee) => {
+        if (employee) {
+            setEditingEmployee(employee);
+            setFormData({
+                name: employee.name,
+                can_open: employee.can_open,
+                can_close_cleaning: employee.can_close_cleaning,
+                can_close_cashier: employee.can_close_cashier,
+                can_close_floor: employee.can_close_floor,
+                can_order: employee.can_order,
+                is_beginner: employee.is_beginner,
+            });
+        } else {
+            setEditingEmployee(null);
+            setFormData(initialFormState);
+        }
+        setIsDialogOpen(true);
+    };
+
+    // フォームの送信処理
+    const handleSubmit = async () => {
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const url = editingEmployee
+                ? `http://localhost:8000/api/accounts/employees/${editingEmployee.id}/`
+                : "http://localhost:8000/api/accounts/employees/";
+
+            const method = editingEmployee ? "PUT" : "POST";
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) throw new Error("保存に失敗しました");
+
+            await fetchEmployees();
+            setIsDialogOpen(false);
+            setFormData(initialFormState);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "エラーが発生しました");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 従業員の削除処理
+    const handleDelete = async () => {
+        if (!editingEmployee) return;
+
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const response = await fetch(
+                `http://localhost:8000/api/accounts/employees/${editingEmployee.id}/`,
+                {
+                    method: "DELETE",
+                }
+            );
+
+            if (!response.ok) throw new Error("削除に失敗しました");
+
+            await fetchEmployees();
+            setIsDialogOpen(false);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "エラーが発生しました");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -137,7 +212,7 @@ export default function EmployeeSettingPage() {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => handleEditClick(employee)}
+                                                onClick={() => handleOpenDialog(employee)}
                                             >
                                                 <PenSquare className="w-4 h-4 mr-2" />
                                                 編集
@@ -149,6 +224,7 @@ export default function EmployeeSettingPage() {
                                     <Button
                                         className="w-full bg-white hover:bg-gray-50 text-gray-600 border-2 border-dashed"
                                         variant="outline"
+                                        onClick={() => handleOpenDialog()}
                                     >
                                         <Plus className="w-4 h-4 mr-2" />
                                         従業員を追加
@@ -159,6 +235,113 @@ export default function EmployeeSettingPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* 従業員追加・編集ダイアログ */}
+            {isDialogOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg max-w-md w-full p-6 space-y-6">
+                        <h3 className="text-lg font-semibold">
+                            {editingEmployee ? "従業員を編集" : "従業員を追加"}
+                        </h3>
+
+                        <div className="space-y-4">
+                            {/* 名前入力 */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">
+                                    名前
+                                </label>
+                                <input
+                                    type="text"
+                                    className="mt-1 w-full rounded-md border border-gray-200 p-2"
+                                    value={formData.name}
+                                    placeholder="例: 山田 太郎"
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, name: e.target.value })
+                                    }
+                                />
+                            </div>
+
+                            {/* スイッチトグル */}
+                            {Object.entries({
+                                can_open: "オープン作業",
+                                can_close_cleaning: "クローズ作業(洗浄)",
+                                can_close_cashier: "クローズ作業(キャッシャー)",
+                                can_close_floor: "クローズ作業(フロア清掃)",
+                                can_order: "解凍発注作業",
+                                is_beginner: "新人",
+                            }).map(([key, label]) => (
+                                <div
+                                    key={key}
+                                    className="flex items-center justify-between"
+                                >
+                                    <span className="text-sm">{label}</span>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData[key as keyof EmployeeForm]
+                                                ? "bg-gray-900"
+                                                : "bg-gray-200"
+                                            }`}
+                                        onClick={() =>
+                                            setFormData({
+                                                ...formData,
+                                                [key]: !formData[key as keyof EmployeeForm],
+                                            })
+                                        }
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${formData[key as keyof EmployeeForm]
+                                                    ? "translate-x-6"
+                                                    : "translate-x-1"
+                                                }`}
+                                        />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex justify-between gap-4">
+                            {/* キャンセルボタン */}
+                            <Button
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => setIsDialogOpen(false)}
+                                disabled={isLoading}
+                            >
+                                キャンセル
+                            </Button>
+
+                            {/* 保存ボタン */}
+                            <Button
+                                className="flex-1 bg-gray-900"
+                                onClick={handleSubmit}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        保存中...
+                                    </div>
+                                ) : (
+                                    "保存"
+                                )}
+                            </Button>
+
+                            {/* 削除ボタン (編集時のみ表示) */}
+                            {editingEmployee && (
+                                <Button
+                                    variant="destructive"
+                                    className="flex-1"
+                                    onClick={handleDelete}
+                                    disabled={isLoading}
+                                >
+                                    削除
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
