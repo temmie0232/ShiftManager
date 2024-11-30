@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useRef } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,9 @@ export default function ShiftSendPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);  // ファイル入力のref
     // ドラッグ&ドロップの状態管理を追加
     const [isDragging, setIsDragging] = useState(false);
+    // 送信状態の管理を追加
+    const [isLoading, setIsLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     // ドラッグ&ドロップのイベントハンドラ
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -63,6 +65,53 @@ export default function ShiftSendPage() {
         }
     };
 
+    // フォーム送信時の処理を行う関数
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // 送信前のバリデーション
+        if (!selectedFile) {
+            setError("PDFファイルを選択してください");
+            return;
+        }
+
+        // 送信中の状態を設定
+        setIsLoading(true);
+        setError("");
+        setSuccess(false);
+
+        // FormDataの作成
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('message', message);
+
+        try {
+            // APIにリクエストを送信
+            const response = await fetch("http://localhost:8000/api/notifications/send-shift-notification/", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error("送信に失敗しました");
+            }
+
+            // 送信成功時の処理
+            setSuccess(true);
+            setMessage("");
+            setSelectedFile(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+        } catch (err) {
+            // エラー発生時の処理
+            setError(err instanceof Error ? err.message : "エラーが発生しました");
+        } finally {
+            // 送信状態を解除
+            setIsLoading(false);
+        }
+    };
+
     return (
         // ページ全体
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
@@ -91,7 +140,7 @@ export default function ShiftSendPage() {
                         </div>
                     </CardHeader>
 
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <CardContent>
                             <div className="space-y-6">
                                 {/* PDFアップローダー */}
@@ -99,7 +148,6 @@ export default function ShiftSendPage() {
                                     <label className="text-sm font-medium text-gray-700 block">
                                         PDFファイル
                                     </label>
-                                    {/* ドラッグ&ドロップエリアを追加 */}
                                     <div
                                         className="relative mt-1 flex items-center justify-center w-full"
                                         onDragOver={handleDragOver}
@@ -113,6 +161,7 @@ export default function ShiftSendPage() {
                                             accept=".pdf"
                                             onChange={handleFileChange}
                                             className="hidden"
+                                            disabled={isLoading}
                                         />
                                         {selectedFile ? (
                                             // ファイルが選択された場合の表示
@@ -131,6 +180,7 @@ export default function ShiftSendPage() {
                                                         type="button"
                                                         onClick={handleRemoveFile}
                                                         className="p-1 rounded-full hover:bg-gray-100"
+                                                        disabled={isLoading}
                                                     >
                                                         <X className="w-5 h-5 text-gray-500" />
                                                     </button>
@@ -144,7 +194,8 @@ export default function ShiftSendPage() {
                                                     ${isDragging
                                                         ? 'border-blue-500 bg-blue-50'
                                                         : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
-                                                    }`}
+                                                    }
+                                                    ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                             >
                                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                                     <Upload className={`w-8 h-8 mb-2 ${isDragging ? 'text-blue-500' : 'text-gray-500'}`} />
@@ -167,10 +218,11 @@ export default function ShiftSendPage() {
                                     </label>
                                     <textarea
                                         id="message"
-                                        className="flex min-h-[160px] w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+                                        className="flex min-h-[160px] w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
                                         placeholder="PDFと一緒に送信するメッセージを入力してください"
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
+                                        disabled={isLoading}
                                     />
                                 </div>
 
@@ -180,19 +232,33 @@ export default function ShiftSendPage() {
                                         {error}
                                     </div>
                                 )}
+
+                                {/* 成功メッセージ表示 */}
+                                {success && (
+                                    <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md">
+                                        送信が完了しました！
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
 
                         <CardFooter>
                             <Button
                                 type="submit"
-                                disabled={!selectedFile}
+                                disabled={isLoading || !selectedFile}
                                 className="w-full bg-gray-900 hover:bg-gray-800 text-white transition-colors"
                             >
-                                <div className="flex items-center justify-center gap-2">
-                                    <Send className="w-4 h-4" />
-                                    送信する
-                                </div>
+                                {isLoading ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        送信中...
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Send className="w-4 h-4" />
+                                        送信する
+                                    </div>
+                                )}
                             </Button>
                         </CardFooter>
                     </form>
