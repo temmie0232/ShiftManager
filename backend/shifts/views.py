@@ -32,38 +32,43 @@ class TimePresetDetailView(generics.RetrieveUpdateDestroyAPIView):
         return TimePreset.objects.filter(employee_id=employee_id)
 
 class DraftShiftView(views.APIView):
-    def get(self, request, employee_id, year, month):
+    def get(self, request, employee_id):
         """下書きシフトの取得"""
         employee = get_object_or_404(Employee, id=employee_id)
-        
+        next_month = timezone.now().replace(day=1) + timezone.timedelta(days=32)
+        year = next_month.year
+        month = next_month.month
+
         # シフト提出状況を確認
         status_obj = ShiftSubmissionStatus.get_or_create_for_month(employee, year, month)
         if status_obj.is_submitted:
-            return Response(
-                {"message": "今月のシフトは提出済です！"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+            return Response({
+                "submitted": True,
+                "message": "今月のシフトは提出済です。"
+            })
+
         # 下書きを取得（月初めの場合はリセット）
         draft = DraftShiftRequest.get_or_create_for_month(employee, year, month)
-        
         serializer = DraftShiftRequestSerializer(draft)
         return Response(serializer.data)
 
-    def post(self, request, employee_id, year, month):
+    def post(self, request, employee_id):
         """下書きシフトの保存"""
         employee = get_object_or_404(Employee, id=employee_id)
+        next_month = timezone.now().replace(day=1) + timezone.timedelta(days=32)
+        year = next_month.year
+        month = next_month.month
         
         # シフト提出状況を確認
         status_obj = ShiftSubmissionStatus.get_or_create_for_month(employee, year, month)
         if status_obj.is_submitted:
-            return Response(
-                {"message": "今月のシフトは提出済です！"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        draft = DraftShiftRequest.get_or_create_for_month(employee, year, month)
+            return Response({
+                "submitted": True,
+                "message": "今月のシフトは提出済です。"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
+        draft = DraftShiftRequest.get_or_create_for_month(employee, year, month)
+        
         # 基本情報の更新
         for field in ['min_hours', 'max_hours', 'min_days_per_week', 'max_days_per_week']:
             if field in request.data:
@@ -72,10 +77,7 @@ class DraftShiftView(views.APIView):
 
         # シフト詳細の更新
         if 'shift_details' in request.data:
-            # 既存の詳細を削除
             DraftShiftDetail.objects.filter(draft=draft).delete()
-            
-            # 新しい詳細を作成
             for detail in request.data['shift_details']:
                 DraftShiftDetail.objects.create(
                     draft=draft,
@@ -90,18 +92,21 @@ class DraftShiftView(views.APIView):
         return Response(serializer.data)
 
 class SubmitShiftView(views.APIView):
-    def post(self, request, employee_id, year, month):
+    def post(self, request, employee_id):
         """シフトの最終提出"""
         employee = get_object_or_404(Employee, id=employee_id)
+        next_month = timezone.now().replace(day=1) + timezone.timedelta(days=32)
+        year = next_month.year
+        month = next_month.month
         
         # シフト提出状況を確認
         status_obj = ShiftSubmissionStatus.get_or_create_for_month(employee, year, month)
         if status_obj.is_submitted:
-            return Response(
-                {"message": "今月のシフトは提出済です！"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+            return Response({
+                "submitted": True,
+                "message": "今月のシフトは提出済です。"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         # 下書きデータの取得
         draft = get_object_or_404(
             DraftShiftRequest,
@@ -148,7 +153,7 @@ class SubmitShiftView(views.APIView):
             draft.delete()
             
             return Response({
-                "message": "シフトを提出しました！",
+                "message": "シフトを提出しました。",
                 "shift": serializer.data
             }, status=status.HTTP_201_CREATED)
         
