@@ -7,6 +7,7 @@ import { Send } from "lucide-react";
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
 import PDFUploader from "@/features/shift/send/components/PDFUploader";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export default function ShiftSendPage() {
     // 状態管理の設定
@@ -104,25 +105,15 @@ export default function ShiftSendPage() {
                                 </div>
                             )}
                         </CardContent>
-
                         <CardFooter>
-                            <Button
-                                type="submit"
-                                disabled={isLoading || !selectedFile}
-                                className="w-full bg-gray-900 hover:bg-gray-800 text-white transition-colors"
-                            >
-                                {isLoading ? (
-                                    <div className="flex items-center justify-center gap-2">
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        送信中...
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center justify-center gap-2">
-                                        <Send className="w-4 h-4" />
-                                        送信する
-                                    </div>
-                                )}
-                            </Button>
+
+                            <SubmitButton
+                                label="送信する"
+                                onClick={handleSubmit}
+                                isLoading={isLoading}
+                                disabled={!selectedFile}
+                                iconType="send"
+                            />
                         </CardFooter>
                     </form>
                 </MainCard>

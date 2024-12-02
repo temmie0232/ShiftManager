@@ -9,6 +9,7 @@ import { startOfMonth, addMonths, format } from "date-fns";
 import { TimePresetDrawer, type TimePreset } from "@/features/shift/submit/[id]/components/TimePresetDrawer";
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 // シフトデータの型定義
 type ShiftData = {
@@ -230,23 +231,12 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                     </CardContent>
 
                     <CardFooter>
-                        <Button
-                            className="w-full bg-gray-900"
+                        <SubmitButton
+                            label="希望を提出"
                             onClick={handleSubmit}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? (
-                                <div className="flex items-center justify-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    送信中...
-                                </div>
-                            ) : (
-                                <div className="flex items-center justify-center gap-2">
-                                    <Save className="w-4 h-4" />
-                                    希望を提出
-                                </div>
-                            )}
-                        </Button>
+                            isLoading={isLoading}
+                            iconType="save"
+                        />
                     </CardFooter>
                 </MainCard>
             </div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
 import { BiSpreadsheet } from "react-icons/bi";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export default function ShiftFormSendPage() {
 
@@ -112,24 +113,12 @@ export default function ShiftFormSendPage() {
                         </CardContent>
 
                         <CardFooter>
-                            <Button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full bg-gray-900 hover:bg-gray-800 text-white transition-colors"
-                            >
-                                {isLoading ? (
-                                    <div className="flex items-center justify-center gap-2">
-                                        {/* ローディング */}
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        送信中...
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center justify-center gap-2">
-                                        <Send className="w-4 h-4" />
-                                        送信する
-                                    </div>
-                                )}
-                            </Button>
+                            <SubmitButton
+                                label="送信する"
+                                onClick={handleSubmit}
+                                isLoading={isLoading}
+                                iconType="send"
+                            />
                         </CardFooter>
                     </form>
                 </MainCard>
