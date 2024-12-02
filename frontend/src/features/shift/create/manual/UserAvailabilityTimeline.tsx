@@ -13,9 +13,15 @@ export default function UserAvailabilityTimeline({ employees, selectedDate }) {
         const startPosition = ((startHour - 7) / 15) * totalWidth;
         const width = ((endHour - startHour) / 15) * totalWidth;
 
+        console.log('Start Hour:', startHour);
+        console.log('End Hour:', endHour);
+        console.log('Start Position:', startPosition);
+        console.log('Width:', width);
+
         return {
             left: `${startPosition}%`,
-            width: `${width}%`
+            width: `${width}%`,
+            backgroundColor: '#333333'
         };
     };
 
@@ -36,23 +42,26 @@ export default function UserAvailabilityTimeline({ employees, selectedDate }) {
                 </div>
 
                 <div>
-                    {employees.map((emp, index) => (
-                        <div key={index} className="relative h-12 flex items-center">
-                            <div className="w-24 text-sm text-center flex-shrink-0 font-medium">
-                                {emp.name}
-                            </div>
-                            <div className="flex-1 relative h-8 bg-gray-100 rounded">
-                                <div
-                                    className="absolute h-full bg-blue-500/20 rounded"
-                                    style={calculateBarStyle(emp.shift.start_time, emp.shift.end_time)}
-                                >
-                                    <div className="h-full w-full flex items-center justify-center text-sm text-gray-700">
-                                        {emp.shift.start_time.slice(0, 5)} - {emp.shift.end_time.slice(0, 5)}
+                    {employees.map((emp, index) => {
+                        console.log('Employee Shift:', emp.shift);
+                        return (
+                            <div key={index} className="relative h-12 flex items-center">
+                                <div className="w-24 text-sm text-center flex-shrink-0 font-medium">
+                                    {emp.name}
+                                </div>
+                                <div className="flex-1 relative h-8 bg-gray-100 rounded">
+                                    <div
+                                        className="absolute h-full rounded"
+                                        style={calculateBarStyle(emp.shift.start_time, emp.shift.end_time)}
+                                    >
+                                        <div className="h-full w-full flex items-center justify-center text-sm text-white">
+                                            {emp.shift.start_time.slice(0, 5)} - {emp.shift.end_time.slice(0, 5)}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
