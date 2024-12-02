@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Send, ArrowLeft, Upload, FileText, X } from "lucide-react";
 import Link from "next/link";
 import HomeLink from "@/components/HomeLink";
+import MainCard from "@/components/MainCard";
 
 export default function ShiftSendPage() {
     // 状態管理の設定
@@ -121,20 +122,12 @@ export default function ShiftSendPage() {
                 {/* ホームへ */}
                 <HomeLink />
 
-                {/* メインカード (ホバー時のエフェクト付き) */}
-                <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
-                    <CardHeader className="space-y-4">
-                        <div className="rounded-lg w-12 h-12 flex items-center justify-center bg-gray-100 mb-4">
-                            <Send className="w-6 h-6 text-gray-600" />
-                        </div>
-                        <div className="space-y-2">
-                            <CardTitle className="font-semibold text-2xl">シフトの送信</CardTitle>
-                            <CardDescription className="text-gray-600">
-                                確定したシフト(PDF)をLINEグループに送信します
-                            </CardDescription>
-                        </div>
-                    </CardHeader>
-
+                {/* メインカード*/}
+                <MainCard
+                    icon={<Send className="w-6 h-6 text-gray-600" />}
+                    title="シフトの送信"
+                    description="確定したシフト(PDF)をLINEグループに送信します"
+                >
                     <form onSubmit={handleSubmit}>
                         <CardContent>
                             <div className="space-y-6">
@@ -257,8 +250,8 @@ export default function ShiftSendPage() {
                             </Button>
                         </CardFooter>
                     </form>
-                </Card>
+                </MainCard>
             </div>
-        </div>
+        </div >
     );
 }

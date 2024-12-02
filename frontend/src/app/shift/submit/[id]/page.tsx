@@ -8,6 +8,7 @@ import CustomCalendar from "@/components/CustomCalendar";
 import { startOfMonth, addMonths, format } from "date-fns";
 import { TimePresetDrawer, type TimePreset } from "@/components/TimePresetDrawer";
 import HomeLink from "@/components/HomeLink";
+import MainCard from "@/components/MainCard";
 
 // シフトデータの型定義
 type ShiftData = {
@@ -131,14 +132,10 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 {/* 戻るリンク */}
                 <HomeLink href="/shift/submit" text="従業員選択へ戻る" />
 
-                <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
-                    <CardHeader className="space-y-4">
-                        <CardTitle className="text-2xl font-bold">シフト希望提出</CardTitle>
-                        <CardDescription>
-                            カレンダーから希望の日時を選択してください
-                        </CardDescription>
-                    </CardHeader>
-
+                <MainCard
+                    title="シフト希望提出"
+                    description="カレンダーから希望の日時を選択してください"
+                >
                     <CardContent className="space-y-6">
                         {/* カレンダー */}
                         <CustomCalendar
@@ -251,8 +248,8 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                             )}
                         </Button>
                     </CardFooter>
-                </Card>
+                </MainCard>
             </div>
-        </div>
+        </div >
     );
 }

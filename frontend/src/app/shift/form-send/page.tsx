@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft, CalendarRange, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
 import HomeLink from "@/components/HomeLink";
+import MainCard from "@/components/MainCard";
+import { BiSpreadsheet } from "react-icons/bi";
 
 export default function ShiftFormSendPage() {
 
@@ -64,19 +66,14 @@ export default function ShiftFormSendPage() {
                 {/* ナビゲーションリンク */}
                 <HomeLink />
 
-                <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
-                    <CardHeader className="space-y-4">
-                        {/* アイコンを含む丸いコンテナ */}
-                        <div className="rounded-lg w-12 h-12 flex items-center justify-center bg-gray-100 mb-4">
-                            <Send className="w-6 h-6 text-gray-600" />
-                        </div>
-                        <div className="space-y-2">
-                            <CardTitle className="font-semibold text-2xl">シフト提出フォームの送信</CardTitle>
-                            <CardDescription className="text-gray-600">
-                                LINEグループにシフト提出フォームのURLを送信します
-                            </CardDescription>
-                        </div>
-                    </CardHeader>
+
+                <MainCard
+                    icon={<FileSpreadsheet className="w-6 h-6 text-gray-600" />}
+                    title="確定したシフト(PDF)をLINEグループに送信します"
+                    description="LINEグループにシフト提出フォームのURLを送信します"
+                >
+
+
 
                     <form onSubmit={handleSubmit}>
                         <CardContent>
@@ -135,8 +132,8 @@ export default function ShiftFormSendPage() {
                             </Button>
                         </CardFooter>
                     </form>
-                </Card>
+                </MainCard>
             </div>
-        </div>
+        </div >
     );
 }
