@@ -2,8 +2,12 @@
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft, CalendarRange, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
+import HomeLink from "@/components/ui/HomeLink";
+import MainCard from "@/components/layout/MainCard";
+import { BiSpreadsheet } from "react-icons/bi";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export default function ShiftFormSendPage() {
 
@@ -61,27 +65,16 @@ export default function ShiftFormSendPage() {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
                 {/* ナビゲーションリンク */}
-                <Link
-                    href="/home"
-                    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    ホームに戻る
-                </Link>
+                <HomeLink />
 
-                <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
-                    <CardHeader className="space-y-4">
-                        {/* アイコンを含む丸いコンテナ */}
-                        <div className="rounded-lg w-12 h-12 flex items-center justify-center bg-gray-100 mb-4">
-                            <Send className="w-6 h-6 text-gray-600" />
-                        </div>
-                        <div className="space-y-2">
-                            <CardTitle className="font-semibold text-2xl">シフト提出フォームの送信</CardTitle>
-                            <CardDescription className="text-gray-600">
-                                LINEグループにシフト提出フォームのURLを送信します
-                            </CardDescription>
-                        </div>
-                    </CardHeader>
+
+                <MainCard
+                    icon={<FileSpreadsheet className="w-6 h-6 text-gray-600" />}
+                    title="確定したシフト(PDF)をLINEグループに送信します"
+                    description="LINEグループにシフト提出フォームのURLを送信します"
+                >
+
+
 
                     <form onSubmit={handleSubmit}>
                         <CardContent>
@@ -120,28 +113,16 @@ export default function ShiftFormSendPage() {
                         </CardContent>
 
                         <CardFooter>
-                            <Button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full bg-gray-900 hover:bg-gray-800 text-white transition-colors"
-                            >
-                                {isLoading ? (
-                                    <div className="flex items-center justify-center gap-2">
-                                        {/* ローディング */}
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        送信中...
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center justify-center gap-2">
-                                        <Send className="w-4 h-4" />
-                                        送信する
-                                    </div>
-                                )}
-                            </Button>
+                            <SubmitButton
+                                label="送信する"
+                                onClick={handleSubmit}
+                                isLoading={isLoading}
+                                iconType="send"
+                            />
                         </CardFooter>
                     </form>
-                </Card>
+                </MainCard>
             </div>
-        </div>
+        </div >
     );
 }

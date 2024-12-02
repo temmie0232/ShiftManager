@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "lucide-react";
 import Link from "next/link";
+import MainCard from "@/components/layout/MainCard";
 
 // 従業員データの型定義
 type Employee = {
@@ -46,20 +47,11 @@ export default function ShiftSubmitPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
-                <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
-                    <CardHeader className="space-y-4">
-                        {/* アイコンを含む丸いコンテナ */}
-                        <div className="rounded-lg w-12 h-12 flex items-center justify-center bg-gray-100 mb-4">
-                            <Users className="w-6 h-6 text-gray-600" />
-                        </div>
-                        <div className="space-y-2">
-                            <CardTitle className="font-semibold text-2xl">シフトの提出</CardTitle>
-                            <CardDescription className="text-gray-600">
-                                あなたの名前を選択してください。
-                            </CardDescription>
-                        </div>
-                    </CardHeader>
-
+                <MainCard
+                    icon={<Users className="w-6 h-6 text-gray-600" />}
+                    title="シフトの提出"
+                    description="あなたの名前を選択してください。"
+                >
                     <CardContent>
                         <div className="space-y-4">
                             {/* エラーメッセージ */}
@@ -104,7 +96,7 @@ export default function ShiftSubmitPage() {
                             )}
                         </div>
                     </CardContent>
-                </Card>
+                </MainCard>
             </div>
         </div>
     );

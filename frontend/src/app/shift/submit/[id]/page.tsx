@@ -4,9 +4,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
-import CustomCalendar from "@/components/ui/CustomCalendar";
+import CustomCalendar from "@/features/shift/submit/[id]/components/CustomCalendar";
 import { startOfMonth, addMonths, format } from "date-fns";
-import { TimePresetDrawer, type TimePreset } from "@/components/ui/TimePresetDrawer";
+import { TimePresetDrawer, type TimePreset } from "@/features/shift/submit/[id]/components/TimePresetDrawer";
+import HomeLink from "@/components/ui/HomeLink";
+import MainCard from "@/components/layout/MainCard";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 // シフトデータの型定義
 type ShiftData = {
@@ -128,22 +131,12 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
                 {/* 戻るリンク */}
-                <Link
-                    href="/shift/submit"
-                    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
+                <HomeLink href="/shift/submit" text="従業員選択へ戻る" />
+
+                <MainCard
+                    title="シフト希望提出"
+                    description="カレンダーから希望の日時を選択してください"
                 >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    従業員一覧へ戻る
-                </Link>
-
-                <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
-                    <CardHeader className="space-y-4">
-                        <CardTitle className="text-2xl font-bold">シフト希望提出</CardTitle>
-                        <CardDescription>
-                            カレンダーから希望の日時を選択してください
-                        </CardDescription>
-                    </CardHeader>
-
                     <CardContent className="space-y-6">
                         {/* カレンダー */}
                         <CustomCalendar
@@ -238,26 +231,15 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                     </CardContent>
 
                     <CardFooter>
-                        <Button
-                            className="w-full bg-gray-900"
+                        <SubmitButton
+                            label="希望を提出"
                             onClick={handleSubmit}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? (
-                                <div className="flex items-center justify-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    送信中...
-                                </div>
-                            ) : (
-                                <div className="flex items-center justify-center gap-2">
-                                    <Save className="w-4 h-4" />
-                                    希望を提出
-                                </div>
-                            )}
-                        </Button>
+                            isLoading={isLoading}
+                            iconType="save"
+                        />
                     </CardFooter>
-                </Card>
+                </MainCard>
             </div>
-        </div>
+        </div >
     );
 }
