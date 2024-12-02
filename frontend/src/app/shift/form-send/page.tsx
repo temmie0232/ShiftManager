@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Send, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import HomeLink from "@/components/HomeLink";
 
 export default function ShiftFormSendPage() {
 
@@ -61,13 +62,7 @@ export default function ShiftFormSendPage() {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
                 {/* ナビゲーションリンク */}
-                <Link
-                    href="/home"
-                    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    ホームに戻る
-                </Link>
+                <HomeLink />
 
                 <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
                     <CardHeader className="space-y-4">

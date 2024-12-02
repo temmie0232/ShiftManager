@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, PenSquare } from "lucide-react";
 import Link from "next/link";
+import HomeLink from "@/components/HomeLink";
 
 // 従業員データの型定義
 type Employee = {
@@ -158,13 +159,7 @@ export default function EmployeeSettingPage() {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
                 {/* ホームへ */}
-                <Link
-                    href="/home"
-                    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    ホームに戻る
-                </Link>
+                <HomeLink />
 
                 {/* メインカード */}
                 <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
@@ -279,8 +274,8 @@ export default function EmployeeSettingPage() {
                                         type="button"
                                         role="switch"
                                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData[key as keyof EmployeeForm]
-                                                ? "bg-gray-900"
-                                                : "bg-gray-200"
+                                            ? "bg-gray-900"
+                                            : "bg-gray-200"
                                             }`}
                                         onClick={() =>
                                             setFormData({
@@ -291,8 +286,8 @@ export default function EmployeeSettingPage() {
                                     >
                                         <span
                                             className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${formData[key as keyof EmployeeForm]
-                                                    ? "translate-x-6"
-                                                    : "translate-x-1"
+                                                ? "translate-x-6"
+                                                : "translate-x-1"
                                                 }`}
                                         />
                                     </button>

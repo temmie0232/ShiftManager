@@ -4,9 +4,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
-import CustomCalendar from "@/components/ui/CustomCalendar";
+import CustomCalendar from "@/components/CustomCalendar";
 import { startOfMonth, addMonths, format } from "date-fns";
-import { TimePresetDrawer, type TimePreset } from "@/components/ui/TimePresetDrawer";
+import { TimePresetDrawer, type TimePreset } from "@/components/TimePresetDrawer";
+import HomeLink from "@/components/HomeLink";
 
 // シフトデータの型定義
 type ShiftData = {
@@ -128,13 +129,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
                 {/* 戻るリンク */}
-                <Link
-                    href="/shift/submit"
-                    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    従業員一覧へ戻る
-                </Link>
+                <HomeLink href="/shift/submit" text="従業員選択へ戻る" />
 
                 <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
                     <CardHeader className="space-y-4">

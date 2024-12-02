@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Send, ArrowLeft, Upload, FileText, X } from "lucide-react";
 import Link from "next/link";
+import HomeLink from "@/components/HomeLink";
 
 export default function ShiftSendPage() {
     // 状態管理の設定
@@ -118,13 +119,7 @@ export default function ShiftSendPage() {
             {/* メインコンテンツ */}
             <div className="max-w-2xl mx-auto space-y-8">
                 {/* ホームへ */}
-                <Link
-                    href="/home"
-                    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    ホームに戻る
-                </Link>
+                <HomeLink />
 
                 {/* メインカード (ホバー時のエフェクト付き) */}
                 <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
