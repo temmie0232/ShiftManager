@@ -1,4 +1,5 @@
 "use client"
+
 import { useState, useEffect } from "react";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import CustomCalendar from "@/features/shift/submit/[id]/components/CustomCalendar";
@@ -7,6 +8,8 @@ import { TimePresetDrawer, type TimePreset } from "@/features/shift/submit/[id]/
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
 import ShiftSubmitButtons from "@/features/shift/submit/[id]/components/ShiftSubmitButtons";
+import { useRouter } from "next/navigation";
+import { use } from "react";
 
 // シフトデータの型定義
 type ShiftData = {
@@ -30,7 +33,11 @@ type DraftData = {
     max_days_per_week?: number;
 };
 
-export default function ShiftSubmitPage({ params }: { params: { id: string } }) {
+export default function ShiftSubmitPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = use(params);
+    const employeeId = resolvedParams.id;
+    const router = useRouter();
+
     // 次の月を管理
     const nextMonth = addMonths(startOfMonth(new Date()), 1);
 
@@ -69,8 +76,16 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
     // ドラフトデータを取得する関数
     const fetchDraftData = async () => {
         try {
-            const response = await fetch(`http://localhost:8000/api/shifts/draft/${params.id}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`);
-            if (!response.ok) return;
+            const response = await fetch(`http://localhost:8000/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`);
+
+            if (!response.ok) {
+                if (response.status === 303) {
+                    // 提出済みの場合は提出済みページにリダイレクト
+                    router.push(`/shift/submit/${employeeId}/submitted`);
+                    return;
+                }
+                return;
+            }
 
             const data: DraftData = await response.json();
 
@@ -150,7 +165,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 end_time: shift.endTime
             }));
 
-            const response = await fetch(`http://localhost:8000/api/shifts/submit/${params.id}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
+            const response = await fetch(`http://localhost:8000/api/shifts/submit/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -166,6 +181,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
             }
 
             setSuccess(true);
+            router.push(`/shift/submit/${employeeId}/submitted`);
         } catch (err) {
             setError(err instanceof Error ? err.message : "エラーが発生しました");
         } finally {
@@ -185,7 +201,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 end_time: shift.endTime
             }));
 
-            const response = await fetch(`http://localhost:8000/api/shifts/draft/${params.id}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
+            const response = await fetch(`http://localhost:8000/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
