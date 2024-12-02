@@ -35,10 +35,35 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
         return isSameMonth(startOfDate, currentMonth);
     };
 
-    // シフトの背景色を取得する関数を変更
+    // シフト情報の表示を整形する関数
+    const formatShiftDisplay = (shiftInfo: { startTime: string, endTime: string } | undefined) => {
+        if (!shiftInfo) return null;
+
+        // 時刻から秒を除去する関数
+        const formatTime = (time: string) => {
+            return time.split(':').slice(0, 2).join(':');
+        };
+
+        // 00:00-00:00 の場合は休みとして扱う
+        const isHoliday = shiftInfo.startTime.startsWith('00:00') && shiftInfo.endTime.startsWith('00:00');
+
+        if (isHoliday) {
+            return '休';
+        }
+
+        return (
+            <>
+                <div>{formatTime(shiftInfo.startTime)}</div>
+                <div className="h-2 w-px bg-gray-400"></div>
+                <div>{formatTime(shiftInfo.endTime)}</div>
+            </>
+        );
+    };
+
+    // シフトの背景色を取得する関数
     const getShiftBackgroundColor = (shiftInfo: { startTime: string, endTime: string } | undefined) => {
         if (!shiftInfo) return '#ffffff'; // シフトなし: 白
-        if (shiftInfo.startTime === '00:00' && shiftInfo.endTime === '00:00') {
+        if (shiftInfo.startTime.startsWith('00:00') && shiftInfo.endTime.startsWith('00:00')) {
             return '#333333'; // 休み: 濃いグレー（ほぼ黒）
         }
         return '#f3f4f6'; // 通常シフト: 薄いグレー
@@ -73,7 +98,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
                         const dateKey = format(day, 'yyyy-MM-dd');
                         const shiftInfo = shiftData[dateKey];
                         const isSelectable = isDateSelectable(day);
-                        const isHoliday = shiftInfo && shiftInfo.startTime === '00:00' && shiftInfo.endTime === '00:00';
+                        const isHoliday = shiftInfo && shiftInfo.startTime.startsWith('00:00') && shiftInfo.endTime.startsWith('00:00');
                         const dayOfWeek = getDay(day);
                         const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
@@ -112,15 +137,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
                                             "text-xs flex flex-col items-center",
                                             isHoliday ? "text-white" : "text-gray-600"
                                         )}>
-                                            {isHoliday ? (
-                                                <div className="font-medium">休</div>
-                                            ) : (
-                                                <>
-                                                    <div>{shiftInfo.startTime}</div>
-                                                    <div className="h-2 w-px bg-gray-400"></div>
-                                                    <div>{shiftInfo.endTime}</div>
-                                                </>
-                                            )}
+                                            {formatShiftDisplay(shiftInfo)}
                                         </div>
                                     </>
                                 )}
