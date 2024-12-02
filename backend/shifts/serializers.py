@@ -42,7 +42,7 @@ class DraftShiftRequestSerializer(serializers.ModelSerializer):
 class ShiftDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShiftDetail
-        fields = ['date', 'start_time', 'end_time', 'is_holiday', 'color']
+        fields = ['date', 'start_time', 'end_time', 'is_holiday']
 
 class ShiftRequestSerializer(serializers.ModelSerializer):
     shift_details = ShiftDetailSerializer(many=True)
@@ -50,19 +50,52 @@ class ShiftRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShiftRequest
         fields = [
-            'id', 'year', 'month', 'min_hours', 'max_hours',
-            'min_days_per_week', 'max_days_per_week', 'shift_details',
-            'submitted_at'
+            'min_hours', 
+            'max_hours',
+            'min_days_per_week', 
+            'max_days_per_week',
+            'shift_details',
+            'year',
+            'month'
         ]
+        read_only_fields = ['year', 'month']
 
     def create(self, validated_data):
-        details_data = validated_data.pop('shift_details')
-        shift_request = ShiftRequest.objects.create(**validated_data)
-        
-        for detail_data in details_data:
-            ShiftDetail.objects.create(shift_request=shift_request, **detail_data)
-        
+        # employee_idをコンテキストから取得
+        employee_id = self.context.get('employee_id')
+        if not employee_id:
+            raise serializers.ValidationError("Employee ID is required")
+
+        # シフト詳細データを取り出す
+        shift_details_data = validated_data.pop('shift_details')
+
+        # year と month をコンテキストから取得
+        year = self.context.get('year')
+        month = self.context.get('month')
+
+        # ShiftRequestを作成
+        shift_request = ShiftRequest.objects.create(
+            employee_id=employee_id,
+            year=year,
+            month=month,
+            **validated_data
+        )
+
+        # シフト詳細を作成
+        for detail_data in shift_details_data:
+            ShiftDetail.objects.create(
+                shift_request=shift_request,
+                **detail_data
+            )
+
         return shift_request
+
+    def validate(self, data):
+        if data['min_hours'] > data['max_hours']:
+            raise serializers.ValidationError("Minimum hours cannot be greater than maximum hours")
+        if data['min_days_per_week'] > data['max_days_per_week']:
+            raise serializers.ValidationError("Minimum days per week cannot be greater than maximum days per week")
+        return data
 
 class HistoricalShiftRequestSerializer(serializers.ModelSerializer):
     shift_details = ShiftDetailSerializer(many=True)

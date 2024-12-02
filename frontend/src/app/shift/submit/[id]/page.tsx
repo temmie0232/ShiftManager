@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { CardContent, CardFooter } from "@/components/ui/card";
-import CustomCalendar from "@/features/shift/submit/[id]/components/CustomCalendar";
+import CustomCalendar from "@/components/ui/CustomCalendar";
 import { startOfMonth, addMonths, format } from "date-fns";
 import { TimePresetDrawer, type TimePreset } from "@/features/shift/submit/[id]/components/TimePresetDrawer";
 import HomeLink from "@/components/ui/HomeLink";
@@ -158,26 +158,51 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
         setError("");
         setSuccess(false);
 
+        if (Object.keys(shiftData).length === 0) {
+            setError("シフトが入力されていません");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!monthlyPreference.minHours || !monthlyPreference.maxHours) {
+            setError("月の希望労働時間を入力してください");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!monthlyPreference.minDaysPerWeek || !monthlyPreference.maxDaysPerWeek) {
+            setError("週の希望労働日数を入力してください");
+            setIsLoading(false);
+            return;
+        }
+
         try {
-            const shifts = Object.entries(shiftData).map(([date, shift]) => ({
+            const shift_details = Object.entries(shiftData).map(([date, shift]) => ({
                 date,
                 start_time: shift.startTime,
-                end_time: shift.endTime
+                end_time: shift.endTime,
+                is_holiday: shift.startTime === '00:00' && shift.endTime === '00:00'
             }));
+
+            const requestData = {
+                min_hours: monthlyPreference.minHours,
+                max_hours: monthlyPreference.maxHours,
+                min_days_per_week: monthlyPreference.minDaysPerWeek,
+                max_days_per_week: monthlyPreference.maxDaysPerWeek,
+                shift_details: shift_details
+            };
 
             const response = await fetch(`http://localhost:8000/api/shifts/submit/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    shifts,
-                    monthly_preference: monthlyPreference
-                }),
+                body: JSON.stringify(requestData),
             });
 
             if (!response.ok) {
-                throw new Error("シフトの送信に失敗しました");
+                const errorData = await response.json();
+                throw new Error(errorData.message || "シフトの送信に失敗しました");
             }
 
             setSuccess(true);

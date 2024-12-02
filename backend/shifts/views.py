@@ -88,6 +88,7 @@ class DraftShiftView(views.APIView):
 class SubmitShiftView(views.APIView):
     def post(self, request, employee_id, year, month):
         """シフトの最終提出"""
+        # 従業員の存在確認
         employee = get_object_or_404(Employee, id=employee_id)
         
         # シフト提出状況を確認
@@ -106,47 +107,36 @@ class SubmitShiftView(views.APIView):
             month=month
         )
 
-        # シフトリクエストの作成
-        shift_request_data = {
-            'employee': employee,
-            'year': year,
-            'month': month,
-            'min_hours': draft.min_hours,
-            'max_hours': draft.max_hours,
-            'min_days_per_week': draft.min_days_per_week,
-            'max_days_per_week': draft.max_days_per_week,
-        }
-        
-        # 詳細データの準備
-        details_data = [{
-            'date': detail.date,
-            'start_time': detail.start_time,
-            'end_time': detail.end_time,
-            'is_holiday': detail.is_holiday,
-            'color': detail.color,
-        } for detail in DraftShiftDetail.objects.filter(draft=draft)]
-
-        # シリアライザでデータを検証
-        serializer = ShiftRequestSerializer(data={
-            **shift_request_data,
-            'shift_details': details_data
-        })
+        # シリアライザーにコンテキストを追加
+        serializer = ShiftRequestSerializer(
+            data=request.data,
+            context={
+                'employee_id': employee_id,
+                'year': year,
+                'month': month
+            }
+        )
         
         if serializer.is_valid():
-            shift_request = serializer.save()
-            
-            # 提出状況を更新
-            status_obj.is_submitted = True
-            status_obj.submitted_at = timezone.now()
-            status_obj.save()
-            
-            # 下書きデータを削除
-            draft.delete()
-            
-            return Response({
-                "message": "シフトを提出しました。",
-                "shift": serializer.data
-            }, status=status.HTTP_201_CREATED)
+            try:
+                shift_request = serializer.save()
+                
+                # 提出状況を更新
+                status_obj.is_submitted = True
+                status_obj.submitted_at = timezone.now()
+                status_obj.save()
+                
+                # 下書きデータを削除
+                draft.delete()
+                
+                return Response({
+                    "message": "シフトを提出しました。",
+                    "shift": serializer.data
+                }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({
+                    "error": str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
