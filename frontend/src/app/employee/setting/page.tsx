@@ -1,12 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users } from "lucide-react";
+import { Users, Plus, PenSquare } from "lucide-react";
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
-import AddEmployeeDialog from "@/features/employee/setting/components/AddEmployeeDialog";
-import EditEmployeeDialog from "@/features/employee/setting/components/EditEmployeeDialog";
+import EmployeeDialog from "@/features/employee/setting/components/EmployeeDialog";
+import { CardContent } from "@/components/ui/card";
 
 // 従業員データの型定義
 type Employee = {
@@ -22,7 +21,7 @@ type Employee = {
 
 // フォーム用の型定義
 // Employee型からidを除外した型を作成（新規作成時にはidは不要なため）
-export type EmployeeForm = Omit<Employee, "id">;
+type EmployeeForm = Omit<Employee, "id">;
 
 // フォームの初期状態を定義
 const initialFormState: EmployeeForm = {
@@ -36,7 +35,7 @@ const initialFormState: EmployeeForm = {
 };
 
 export default function EmployeeSettingPage() {
-    // 従業員一覧を管理するstate
+    // 従業員一覧
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -46,7 +45,7 @@ export default function EmployeeSettingPage() {
     // 編集中の従業員情報を管理するstate
     const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
-    // コンポーネントマウント時に従業員データを取得
+    // 初回レンダリング時に従業員データを取得
     useEffect(() => {
         fetchEmployees();
     }, []);
@@ -162,7 +161,9 @@ export default function EmployeeSettingPage() {
                         <div className="space-y-6">
                             {/* エラーメッセージ */}
                             {error && (
-                                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</div>
+                                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                                    {error}
+                                </div>
                             )}
 
                             {/* ローディング表示 */}
@@ -187,6 +188,7 @@ export default function EmployeeSettingPage() {
                                                 size="sm"
                                                 onClick={() => handleOpenDialog(employee)}
                                             >
+                                                <PenSquare className="w-4 h-4 mr-2" />
                                                 編集
                                             </Button>
                                         </div>
@@ -195,8 +197,10 @@ export default function EmployeeSettingPage() {
                                     {/* 従業員追加ボタン */}
                                     <Button
                                         className="w-full bg-white hover:bg-gray-50 text-gray-600 border-2 border-dashed"
+                                        variant="outline"
                                         onClick={() => handleOpenDialog()}
                                     >
+                                        <Plus className="w-4 h-4 mr-2" />
                                         従業員を追加
                                     </Button>
                                 </div>
@@ -206,26 +210,17 @@ export default function EmployeeSettingPage() {
                 </MainCard>
             </div>
 
-            {!editingEmployee ? (
-                <AddEmployeeDialog
-                    isOpen={isDialogOpen}
-                    isLoading={isLoading}
-                    formData={formData}
-                    setFormData={setFormData}
-                    onClose={() => setIsDialogOpen(false)}
-                    onSave={handleSubmit}
-                />
-            ) : (
-                <EditEmployeeDialog
-                    isOpen={isDialogOpen}
-                    isLoading={isLoading}
-                    formData={formData}
-                    setFormData={setFormData}
-                    onClose={() => setIsDialogOpen(false)}
-                    onSave={handleSubmit}
-                    onDelete={handleDelete}
-                />
-            )}
-        </div>
+            {/* ダイアログコンポーネント */}
+            <EmployeeDialog
+                isOpen={isDialogOpen}
+                isLoading={isLoading}
+                error={error}
+                formData={formData}
+                onClose={() => setIsDialogOpen(false)}
+                onSave={handleSubmit}
+                onDelete={editingEmployee ? handleDelete : undefined}
+                setFormData={setFormData}
+            />
+        </div >
     );
 }
