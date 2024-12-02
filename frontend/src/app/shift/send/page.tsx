@@ -4,8 +4,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Send, ArrowLeft, Upload, FileText, X } from "lucide-react";
 import Link from "next/link";
-import HomeLink from "@/components/HomeLink";
-import MainCard from "@/components/MainCard";
+import HomeLink from "@/components/ui/HomeLink";
+import MainCard from "@/components/layout/MainCard";
 
 export default function ShiftSendPage() {
     // 状態管理の設定

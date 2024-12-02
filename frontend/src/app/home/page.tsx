@@ -1,4 +1,4 @@
-import LinkCard from "@/components/LinkCard";
+import LinkCard from "@/components/ui/LinkCard";
 import { FileSpreadsheet, Calendar, Send, Users } from "lucide-react";
 
 export default function HomePage() {

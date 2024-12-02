@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "lucide-react";
 import Link from "next/link";
-import MainCard from "@/components/MainCard";
+import MainCard from "@/components/layout/MainCard";
 
 // 従業員データの型定義
 type Employee = {

@@ -4,8 +4,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Send, ArrowLeft, CalendarRange, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
-import HomeLink from "@/components/HomeLink";
-import MainCard from "@/components/MainCard";
+import HomeLink from "@/components/ui/HomeLink";
+import MainCard from "@/components/layout/MainCard";
 import { BiSpreadsheet } from "react-icons/bi";
 
 export default function ShiftFormSendPage() {

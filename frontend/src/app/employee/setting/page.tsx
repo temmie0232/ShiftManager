@@ -4,8 +4,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, PenSquare, User, Users } from "lucide-react";
 import Link from "next/link";
-import HomeLink from "@/components/HomeLink";
-import MainCard from "@/components/MainCard";
+import HomeLink from "@/components/ui/HomeLink";
+import MainCard from "@/components/layout/MainCard";
 
 // 従業員データの型定義
 type Employee = {

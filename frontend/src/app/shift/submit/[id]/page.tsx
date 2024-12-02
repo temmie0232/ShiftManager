@@ -7,8 +7,8 @@ import Link from "next/link";
 import CustomCalendar from "@/components/CustomCalendar";
 import { startOfMonth, addMonths, format } from "date-fns";
 import { TimePresetDrawer, type TimePreset } from "@/components/TimePresetDrawer";
-import HomeLink from "@/components/HomeLink";
-import MainCard from "@/components/MainCard";
+import HomeLink from "@/components/ui/HomeLink";
+import MainCard from "@/components/layout/MainCard";
 
 // シフトデータの型定義
 type ShiftData = {
