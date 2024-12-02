@@ -1,27 +1,28 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, PenSquare, User, Users } from "lucide-react";
-import Link from "next/link";
+import { Users } from "lucide-react";
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
+import AddEmployeeDialog from "@/features/employee/setting/components/AddEmployeeDialog";
+import EditEmployeeDialog from "@/features/employee/setting/components/EditEmployeeDialog";
 
 // 従業員データの型定義
 type Employee = {
     id: number;
     name: string;
-    can_open: boolean;          // オープン作業が可能か
-    can_close_cleaning: boolean; // 閉店時の清掃作業が可能か
-    can_close_cashier: boolean; // レジ締め作業が可能か
-    can_close_floor: boolean;   // フロア清掃作業が可能か
-    can_order: boolean;         // 発注作業が可能か
-    is_beginner: boolean;       // 新人かどうか
+    can_open: boolean;
+    can_close_cleaning: boolean;
+    can_close_cashier: boolean;
+    can_close_floor: boolean;
+    can_order: boolean;
+    is_beginner: boolean;
 };
 
 // フォーム用の型定義
 // Employee型からidを除外した型を作成（新規作成時にはidは不要なため）
-type EmployeeForm = Omit<Employee, 'id'>;
+export type EmployeeForm = Omit<Employee, "id">;
 
 // フォームの初期状態を定義
 const initialFormState: EmployeeForm = {
@@ -37,17 +38,9 @@ const initialFormState: EmployeeForm = {
 export default function EmployeeSettingPage() {
     // 従業員一覧を管理するstate
     const [employees, setEmployees] = useState<Employee[]>([]);
-
-    // ローディングの状態管理
     const [isLoading, setIsLoading] = useState(false);
-
-    // エラーの状態管理
     const [error, setError] = useState("");
-
-    // ダイアログの表示状態を管理
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-    // フォームの状態を管理するstate
     const [formData, setFormData] = useState<EmployeeForm>(initialFormState);
 
     // 編集中の従業員情報を管理するstate
@@ -156,27 +149,20 @@ export default function EmployeeSettingPage() {
     };
 
     return (
-        // ページ全体のコンテナ
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
-                {/* ホームへ */}
                 <HomeLink />
 
-                {/* メインカード */}
                 <MainCard
                     icon={<Users className="w-6 h-6 text-gray-600" />}
                     title="従業員設定"
                     description="従業員情報の追加・編集・削除を行います"
                 >
-
-
                     <CardContent>
                         <div className="space-y-6">
                             {/* エラーメッセージ */}
                             {error && (
-                                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                                    {error}
-                                </div>
+                                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</div>
                             )}
 
                             {/* ローディング表示 */}
@@ -201,7 +187,6 @@ export default function EmployeeSettingPage() {
                                                 size="sm"
                                                 onClick={() => handleOpenDialog(employee)}
                                             >
-                                                <PenSquare className="w-4 h-4 mr-2" />
                                                 編集
                                             </Button>
                                         </div>
@@ -210,10 +195,8 @@ export default function EmployeeSettingPage() {
                                     {/* 従業員追加ボタン */}
                                     <Button
                                         className="w-full bg-white hover:bg-gray-50 text-gray-600 border-2 border-dashed"
-                                        variant="outline"
                                         onClick={() => handleOpenDialog()}
                                     >
-                                        <Plus className="w-4 h-4 mr-2" />
                                         従業員を追加
                                     </Button>
                                 </div>
@@ -223,114 +206,26 @@ export default function EmployeeSettingPage() {
                 </MainCard>
             </div>
 
-            {/* 従業員追加・編集ダイアログ */}
-            {
-                isDialogOpen && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-lg max-w-md w-full p-6 space-y-6">
-                            <h3 className="text-lg font-semibold">
-                                {editingEmployee ? "従業員を編集" : "従業員を追加"}
-                            </h3>
-
-                            <div className="space-y-4">
-                                {/* 名前入力 */}
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">
-                                        名前
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="mt-1 w-full rounded-md border border-gray-200 p-2"
-                                        value={formData.name}
-                                        placeholder="例: 山田 太郎"
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, name: e.target.value })
-                                        }
-                                    />
-                                </div>
-
-                                {/* スイッチトグル */}
-                                {Object.entries({
-                                    can_open: "オープン作業",
-                                    can_close_cleaning: "クローズ作業(洗浄)",
-                                    can_close_cashier: "クローズ作業(キャッシャー)",
-                                    can_close_floor: "クローズ作業(フロア清掃)",
-                                    can_order: "解凍発注作業",
-                                    is_beginner: "新人",
-                                }).map(([key, label]) => (
-                                    <div
-                                        key={key}
-                                        className="flex items-center justify-between"
-                                    >
-                                        <span className="text-sm">{label}</span>
-                                        <button
-                                            type="button"
-                                            role="switch"
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData[key as keyof EmployeeForm]
-                                                ? "bg-gray-900"
-                                                : "bg-gray-200"
-                                                }`}
-                                            onClick={() =>
-                                                setFormData({
-                                                    ...formData,
-                                                    [key]: !formData[key as keyof EmployeeForm],
-                                                })
-                                            }
-                                        >
-                                            <span
-                                                className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${formData[key as keyof EmployeeForm]
-                                                    ? "translate-x-6"
-                                                    : "translate-x-1"
-                                                    }`}
-                                            />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="flex justify-between gap-4">
-                                {/* キャンセルボタン */}
-                                <Button
-                                    variant="outline"
-                                    className="flex-1"
-                                    onClick={() => setIsDialogOpen(false)}
-                                    disabled={isLoading}
-                                >
-                                    キャンセル
-                                </Button>
-
-                                {/* 保存ボタン */}
-                                <Button
-                                    className="flex-1 bg-gray-900"
-                                    onClick={handleSubmit}
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? (
-                                        <div className="flex items-center justify-center gap-2">
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                            保存中...
-                                        </div>
-                                    ) : (
-                                        "保存"
-                                    )}
-                                </Button>
-
-                                {/* 削除ボタン (編集時のみ表示) */}
-                                {editingEmployee && (
-                                    <Button
-                                        variant="destructive"
-                                        className="flex-1"
-                                        onClick={handleDelete}
-                                        disabled={isLoading}
-                                    >
-                                        削除
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
-        </div >
+            {!editingEmployee ? (
+                <AddEmployeeDialog
+                    isOpen={isDialogOpen}
+                    isLoading={isLoading}
+                    formData={formData}
+                    setFormData={setFormData}
+                    onClose={() => setIsDialogOpen(false)}
+                    onSave={handleSubmit}
+                />
+            ) : (
+                <EditEmployeeDialog
+                    isOpen={isDialogOpen}
+                    isLoading={isLoading}
+                    formData={formData}
+                    setFormData={setFormData}
+                    onClose={() => setIsDialogOpen(false)}
+                    onSave={handleSubmit}
+                    onDelete={handleDelete}
+                />
+            )}
+        </div>
     );
 }
