@@ -25,7 +25,7 @@ export default function HomePage() {
                         description="確定したシフトをLINEグループに送信します"
                     />
                     <LinkCard
-                        href="/shift"
+                        href="/shift/view"
                         icon={<ListChecks className="w-6 h-6 text-gray-600" />}
                         title="提出されたシフトの確認"
                         description="提出された希望シフトを確認する。"
