@@ -1,5 +1,5 @@
 import LinkCard from "@/components/ui/LinkCard";
-import { FileSpreadsheet, Calendar, Send, Users } from "lucide-react";
+import { FileSpreadsheet, Calendar, Send, Users, ListCheck, ListChecks } from "lucide-react";
 
 export default function HomePage() {
     return (
@@ -19,16 +19,22 @@ export default function HomePage() {
                         description="シフト提出フォームをLINEグループに送信します"
                     />
                     <LinkCard
-                        href="/shift"
-                        icon={<Calendar className="w-6 h-6 text-gray-600" />}
-                        title="シフトの作成"
-                        description="提出された希望シフトから新しいシフトを作成します"
-                    />
-                    <LinkCard
                         href="/shift/send"
                         icon={<Send className="w-6 h-6 text-gray-600" />}
                         title="作成済みシフトの送信"
                         description="確定したシフトをLINEグループに送信します"
+                    />
+                    <LinkCard
+                        href="/shift"
+                        icon={<ListChecks className="w-6 h-6 text-gray-600" />}
+                        title="提出されたシフトの確認"
+                        description="提出された希望シフトを確認する。"
+                    />
+                    <LinkCard
+                        href="/shift"
+                        icon={<Calendar className="w-6 h-6 text-gray-600" />}
+                        title="シフトの作成"
+                        description="提出された希望シフトから新しいシフトを作成します"
                     />
                     <LinkCard
                         href="/employee/setting"

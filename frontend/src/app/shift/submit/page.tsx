@@ -1,10 +1,11 @@
-"use client"
+"use client";
+
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users } from "lucide-react";
-import Link from "next/link";
+import { Users } from "lucide-react";
 import MainCard from "@/components/layout/MainCard";
+import { useRouter } from "next/navigation";
 
 // 従業員データの型定義
 type Employee = {
@@ -13,6 +14,7 @@ type Employee = {
 };
 
 export default function ShiftSubmitPage() {
+    const router = useRouter();
     // 従業員一覧を管理するstate
     const [employees, setEmployees] = useState<Employee[]>([]);
     // ローディングの状態管理
@@ -37,6 +39,43 @@ export default function ShiftSubmitPage() {
             }
             const data = await response.json();
             setEmployees(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "エラーが発生しました");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 提出状況を確認して適切なページにリダイレクトする関数
+    const handleEmployeeSelect = async (employeeId: number) => {
+        setIsLoading(true);
+        setError("");
+
+        try {
+            // 次の月の年と月を取得
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            const year = nextMonth.getFullYear();
+            const month = nextMonth.getMonth() + 1;
+
+            // シフト提出状況を確認
+            const response = await fetch(
+                `http://localhost:8000/api/shifts/draft/${employeeId}/${year}/${month}/`
+            );
+
+            if (!response.ok) {
+                throw new Error("提出状況の確認に失敗しました");
+            }
+
+            const data = await response.json();
+
+            // 提出済みの場合は提出済みページにリダイレクト
+            if (data.submitted) {
+                router.push(`/shift/submit/${employeeId}/submitted`);
+            } else {
+                // 未提出の場合は通常のシフト提出ページへ
+                router.push(`/shift/submit/${employeeId}`);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : "エラーが発生しました");
         } finally {
@@ -73,18 +112,15 @@ export default function ShiftSubmitPage() {
                             {!isLoading && (
                                 <div className="space-y-3">
                                     {employees.map((employee) => (
-                                        <Link
+                                        <Button
                                             key={employee.id}
-                                            href={`/shift/submit/${employee.id}`}
-                                            className="block"
+                                            variant="outline"
+                                            className="w-full justify-start text-left font-normal hover:bg-gray-100"
+                                            onClick={() => handleEmployeeSelect(employee.id)}
+                                            disabled={isLoading}
                                         >
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal hover:bg-gray-100"
-                                            >
-                                                {employee.name}
-                                            </Button>
-                                        </Link>
+                                            {employee.name}
+                                        </Button>
                                     ))}
 
                                     {employees.length === 0 && !error && (

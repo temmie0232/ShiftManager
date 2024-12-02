@@ -1,15 +1,15 @@
 "use client"
-import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save } from "lucide-react";
-import Link from "next/link";
-import CustomCalendar from "@/features/shift/submit/[id]/components/CustomCalendar";
+
+import { useState, useEffect } from "react";
+import { CardContent, CardFooter } from "@/components/ui/card";
+import CustomCalendar from "@/components/ui/CustomCalendar";
 import { startOfMonth, addMonths, format } from "date-fns";
 import { TimePresetDrawer, type TimePreset } from "@/features/shift/submit/[id]/components/TimePresetDrawer";
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
-import SubmitButton from "@/components/ui/SubmitButton";
+import ShiftSubmitButtons from "@/features/shift/submit/[id]/components/ShiftSubmitButtons";
+import { useRouter } from "next/navigation";
+import { use } from "react";
 
 // シフトデータの型定義
 type ShiftData = {
@@ -20,7 +20,24 @@ type ShiftData = {
     };
 };
 
-export default function ShiftSubmitPage({ params }: { params: { id: string } }) {
+// ドラフトデータの型定義
+type DraftData = {
+    shift_details: {
+        date: string;
+        start_time: string;
+        end_time: string;
+    }[];
+    min_hours?: number;
+    max_hours?: number;
+    min_days_per_week?: number;
+    max_days_per_week?: number;
+};
+
+export default function ShiftSubmitPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = use(params);
+    const employeeId = resolvedParams.id;
+    const router = useRouter();
+
     // 次の月を管理
     const nextMonth = addMonths(startOfMonth(new Date()), 1);
 
@@ -43,12 +60,56 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
 
     // ローディング状態の管理
     const [isLoading, setIsLoading] = useState(false);
+    const [draftSaving, setDraftSaving] = useState(false);
 
     // エラーメッセージの管理
     const [error, setError] = useState("");
 
     // 成功メッセージの管理
     const [success, setSuccess] = useState(false);
+
+    // コンポーネントマウント時にドラフトデータを取得
+    useEffect(() => {
+        fetchDraftData();
+    }, []);
+
+    // ドラフトデータを取得する関数
+    const fetchDraftData = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`);
+
+            if (!response.ok) {
+                if (response.status === 303) {
+                    // 提出済みの場合は提出済みページにリダイレクト
+                    router.push(`/shift/submit/${employeeId}/submitted`);
+                    return;
+                }
+                return;
+            }
+
+            const data: DraftData = await response.json();
+
+            // シフトデータの復元
+            const restoredShiftData: ShiftData = {};
+            data.shift_details.forEach(detail => {
+                restoredShiftData[detail.date] = {
+                    startTime: detail.start_time,
+                    endTime: detail.end_time,
+                    color: '#a5d6a7'
+                };
+            });
+
+            setShiftData(restoredShiftData);
+            setMonthlyPreference({
+                minHours: data.min_hours || 0,
+                maxHours: data.max_hours || 0,
+                minDaysPerWeek: data.min_days_per_week || 0,
+                maxDaysPerWeek: data.max_days_per_week || 0,
+            });
+        } catch (err) {
+            console.error('ドラフトデータの取得に失敗しました:', err);
+        }
+    };
 
     // 日付が選択された時の処理
     const handleDateSelect = (date: Date) => {
@@ -63,7 +124,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
             [dateString]: {
                 startTime: selectedPreset.startTime,
                 endTime: selectedPreset.endTime,
-                color: '#a5d6a7' // 希望シフトの色
+                color: '#a5d6a7'
             }
         }));
     };
@@ -97,6 +158,67 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
         setError("");
         setSuccess(false);
 
+        if (Object.keys(shiftData).length === 0) {
+            setError("シフトが入力されていません");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!monthlyPreference.minHours || !monthlyPreference.maxHours) {
+            setError("月の希望労働時間を入力してください");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!monthlyPreference.minDaysPerWeek || !monthlyPreference.maxDaysPerWeek) {
+            setError("週の希望労働日数を入力してください");
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const shift_details = Object.entries(shiftData).map(([date, shift]) => ({
+                date,
+                start_time: shift.startTime,
+                end_time: shift.endTime,
+                is_holiday: shift.startTime === '00:00' && shift.endTime === '00:00'
+            }));
+
+            const requestData = {
+                min_hours: monthlyPreference.minHours,
+                max_hours: monthlyPreference.maxHours,
+                min_days_per_week: monthlyPreference.minDaysPerWeek,
+                max_days_per_week: monthlyPreference.maxDaysPerWeek,
+                shift_details: shift_details
+            };
+
+            const response = await fetch(`http://localhost:8000/api/shifts/submit/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "シフトの送信に失敗しました");
+            }
+
+            setSuccess(true);
+            router.push(`/shift/submit/${employeeId}/submitted`);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "エラーが発生しました");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 一時保存の処理
+    const handleDraftSave = async () => {
+        setDraftSaving(true);
+        setError("");
+
         try {
             const shifts = Object.entries(shiftData).map(([date, shift]) => ({
                 date,
@@ -104,26 +226,31 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 end_time: shift.endTime
             }));
 
-            const response = await fetch(`/api/shifts/request/${params.id}`, {
+            const response = await fetch(`http://localhost:8000/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    shifts,
-                    monthly_preference: monthlyPreference
+                    shift_details: shifts,
+                    min_hours: monthlyPreference.minHours,
+                    max_hours: monthlyPreference.maxHours,
+                    min_days_per_week: monthlyPreference.minDaysPerWeek,
+                    max_days_per_week: monthlyPreference.maxDaysPerWeek,
                 }),
             });
 
             if (!response.ok) {
-                throw new Error("シフトの送信に失敗しました");
+                throw new Error("一時保存に失敗しました");
             }
 
+            // 成功メッセージを表示（一時的に）
             setSuccess(true);
+            setTimeout(() => setSuccess(false), 3000);
         } catch (err) {
             setError(err instanceof Error ? err.message : "エラーが発生しました");
         } finally {
-            setIsLoading(false);
+            setDraftSaving(false);
         }
     };
 
@@ -225,21 +352,21 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                         {/* 成功メッセージ */}
                         {success && (
                             <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md">
-                                シフトの希望を提出しました！
+                                シフトを保存しました！
                             </div>
                         )}
                     </CardContent>
 
                     <CardFooter>
-                        <SubmitButton
-                            label="希望を提出"
-                            onClick={handleSubmit}
+                        <ShiftSubmitButtons
+                            onSave={handleSubmit}
+                            onDraft={handleDraftSave}
                             isLoading={isLoading}
-                            iconType="save"
+                            draftSaving={draftSaving}
                         />
                     </CardFooter>
                 </MainCard>
             </div>
-        </div >
+        </div>
     );
 }

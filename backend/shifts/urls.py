@@ -3,25 +3,25 @@ from . import views
 
 urlpatterns = [
     # プリセット関連
-    path('employees/<int:employee_id>/presets/',
+    path('presets/<int:employee_id>/',
          views.TimePresetListCreateView.as_view(),
          name='timepreset-list'),
-    path('employees/<int:employee_id>/presets/<int:preset_id>/',
+    path('presets/<int:employee_id>/<int:preset_id>/',
          views.TimePresetDetailView.as_view(),
          name='timepreset-detail'),
     
     # 下書きシフト関連
-    path('employees/<int:employee_id>/drafts/<int:year>/<int:month>/',
+    path('draft/<int:employee_id>/<int:year>/<int:month>/',
          views.DraftShiftView.as_view(),
          name='draft-shift'),
     
     # シフト提出
-    path('employees/<int:employee_id>/submit/<int:year>/<int:month>/',
+    path('submit/<int:employee_id>/<int:year>/<int:month>/',
          views.SubmitShiftView.as_view(),
          name='submit-shift'),
          
     # シフト履歴
-    path('employees/<int:employee_id>/history/',
+    path('history/<int:employee_id>/',
          views.HistoricalShiftView.as_view(),
          name='shift-history'),
 ]
