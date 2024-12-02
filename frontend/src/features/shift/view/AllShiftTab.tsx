@@ -99,17 +99,23 @@ export default function AllShiftsTab() {
         );
     }
 
+
+    // 正常時のUI
     return (
         <div className="overflow-x-auto">
+            {/* テーブル全体の設定 */}
             <table className="min-w-full border-collapse">
                 <thead>
                     <tr>
-                        <th className="p-2 border bg-gray-50 sticky left-0 z-10">従業員名</th>
+                        {/* 左端の固定カラム */}
+                        <th className="p-1 border bg-gray-50 sticky left-0 z-10"></th>
+                        {/* 日付ごとのヘッダー: daysInMonthをマッピング */}
                         {daysInMonth.map((day) => (
                             <th
                                 key={format(day, "yyyy-MM-dd")}
-                                className="p-2 border bg-gray-50 min-w-[100px]"
+                                className="p-1 border bg-gray-50"
                             >
+                                {/* 日付 (日付と曜日を日本語ロケールで表示) */}
                                 <div>{format(day, "d")}</div>
                                 <div className="text-xs text-gray-500">
                                     {format(day, "E", { locale: ja })}
@@ -119,22 +125,26 @@ export default function AllShiftsTab() {
                     </tr>
                 </thead>
                 <tbody>
+                    {/* 従業員ごとのデータをテーブルにレンダリング */}
                     {Object.entries(tableData).map(([empId, data]) => (
                         <tr key={empId}>
-                            <td className="p-2 border font-medium sticky left-0 bg-white z-10">
+                            {/* 名前を左端の固定カラムに表示 */}
+                            <td className="p-2 border text-xs text-center font-medium sticky left-0 bg-white z-10  whitespace-nowrap">
                                 {data.name}
                             </td>
+                            {/* 日付ごとのシフト情報を表示 */}
                             {daysInMonth.map((day) => {
                                 const dateKey = format(day, "yyyy-MM-dd");
                                 const shift = data.shifts[dateKey];
 
                                 return (
                                     <td key={dateKey} className="p-2 border">
+                                        {/* シフト時間がある場合に表示 */}
                                         {shift && (
-                                            <div className="text-xs bg-gray-50 rounded p-1 text-center">
-                                                {shift.startTime.slice(0, 5)}
-                                                <div className="h-px bg-gray-300 my-1" />
-                                                {shift.endTime.slice(0, 5)}
+                                            <div className="text-xs bg-gray-50 rounded text-center">
+                                                {shift.startTime.slice(0, 5)} {/* 開始時間 */}
+                                                <div className="h-px bg-gray-300 my-1" /> {/* 区切り線 */}
+                                                {shift.endTime.slice(0, 5)} {/* 終了時間 */}
                                             </div>
                                         )}
                                     </td>
