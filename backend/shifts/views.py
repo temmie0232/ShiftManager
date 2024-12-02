@@ -32,13 +32,10 @@ class TimePresetDetailView(generics.RetrieveUpdateDestroyAPIView):
         return TimePreset.objects.filter(employee_id=employee_id)
 
 class DraftShiftView(views.APIView):
-    def get(self, request, employee_id):
+    def get(self, request, employee_id, year, month):
         """下書きシフトの取得"""
         employee = get_object_or_404(Employee, id=employee_id)
-        next_month = timezone.now().replace(day=1) + timezone.timedelta(days=32)
-        year = next_month.year
-        month = next_month.month
-
+        
         # シフト提出状況を確認
         status_obj = ShiftSubmissionStatus.get_or_create_for_month(employee, year, month)
         if status_obj.is_submitted:
@@ -52,12 +49,9 @@ class DraftShiftView(views.APIView):
         serializer = DraftShiftRequestSerializer(draft)
         return Response(serializer.data)
 
-    def post(self, request, employee_id):
+    def post(self, request, employee_id, year, month):
         """下書きシフトの保存"""
         employee = get_object_or_404(Employee, id=employee_id)
-        next_month = timezone.now().replace(day=1) + timezone.timedelta(days=32)
-        year = next_month.year
-        month = next_month.month
         
         # シフト提出状況を確認
         status_obj = ShiftSubmissionStatus.get_or_create_for_month(employee, year, month)
@@ -92,12 +86,9 @@ class DraftShiftView(views.APIView):
         return Response(serializer.data)
 
 class SubmitShiftView(views.APIView):
-    def post(self, request, employee_id):
+    def post(self, request, employee_id, year, month):
         """シフトの最終提出"""
         employee = get_object_or_404(Employee, id=employee_id)
-        next_month = timezone.now().replace(day=1) + timezone.timedelta(days=32)
-        year = next_month.year
-        month = next_month.month
         
         # シフト提出状況を確認
         status_obj = ShiftSubmissionStatus.get_or_create_for_month(employee, year, month)
