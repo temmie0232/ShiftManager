@@ -99,7 +99,6 @@ export default function AllShiftsTab() {
         );
     }
 
-
     // 正常時のUI
     return (
         <div className="overflow-x-auto">
@@ -139,14 +138,17 @@ export default function AllShiftsTab() {
 
                                 return (
                                     <td key={dateKey} className="p-2 border">
-                                        {/* シフト時間がある場合に表示 */}
-                                        {shift && (
-                                            <div className="text-xs bg-gray-50 rounded text-center">
-                                                {shift.startTime.slice(0, 5)} {/* 開始時間 */}
-                                                <div className="h-px bg-gray-300 my-1" /> {/* 区切り線 */}
-                                                {shift.endTime.slice(0, 5)} {/* 終了時間 */}
-                                            </div>
-                                        )}
+                                        {shift ? (
+                                            shift.startTime === "00:00:00" && shift.endTime === "00:00:00" ? (
+                                                <div className="text-xs text-center text-black">×</div>
+                                            ) : (
+                                                <div className="text-xs bg-gray-50 rounded text-center">
+                                                    {shift.startTime.slice(0, 5)} {/* 開始時間 */}
+                                                    <div className="h-px bg-gray-300 my-1" /> {/* 区切り線 */}
+                                                    {shift.endTime.slice(0, 5)} {/* 終了時間 */}
+                                                </div>
+                                            )
+                                        ) : null}
                                     </td>
                                 );
                             })}
