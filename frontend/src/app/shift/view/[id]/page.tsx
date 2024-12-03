@@ -7,8 +7,9 @@ import { addMonths, startOfMonth, format } from "date-fns";
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
 import { use } from 'react';
-import { Calendar } from "lucide-react";
+import { Calendar, Check } from "lucide-react";
 import ShiftEditDialog, { ShiftEditData } from '@/features/shift/view/[id]/components/ShiftEditDialog';
+import { useToast } from "@/hooks/use-toast";
 
 type ShiftData = {
     year: number;
@@ -37,6 +38,7 @@ export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: 
     const resolvedParams = use(params);
     const employeeId = resolvedParams.id;
     const nextMonth = addMonths(startOfMonth(new Date()), 1);
+    const { toast } = useToast();
 
     const [shiftData, setShiftData] = useState<ShiftData | null>(null);
     const [employeeName, setEmployeeName] = useState("");
@@ -150,9 +152,27 @@ export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: 
                 }
             }));
 
+            toast({
+                // @ts-ignore
+                title: (
+                    <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span>保存完了</span>
+                    </div>
+                ),
+                description: "シフトを保存しました",
+                duration: 3000
+            });
+
             setIsEditDialogOpen(false);
         } catch (err) {
             setError(err instanceof Error ? err.message : "エラーが発生しました");
+            toast({
+                title: "エラー",
+                description: err instanceof Error ? err.message : "エラーが発生しました",
+                variant: "destructive",
+                duration: 3000
+            });
         } finally {
             setIsEditLoading(false);
         }

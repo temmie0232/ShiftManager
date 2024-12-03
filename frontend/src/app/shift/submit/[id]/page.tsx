@@ -11,6 +11,8 @@ import ShiftSubmitButtons from "@/features/shift/submit/[id]/components/ShiftSub
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import ConfirmationDialog from "@/features/shift/submit/[id]/components/ConfirmationDialog";
+import { toast } from "@/hooks/use-toast";
+import { Check } from "lucide-react";
 
 type ShiftData = {
     [key: string]: {
@@ -185,9 +187,27 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
             }
 
             setSuccess(true);
+            toast({
+                // @ts-ignore
+                title: (
+                    <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span>提出完了</span>
+                    </div>
+                ),
+                description: "シフトを提出しました",
+                duration: 3000
+            });
+
             router.push(`/shift/submit/${employeeId}/submitted`);
         } catch (err) {
             setError(err instanceof Error ? err.message : "エラーが発生しました");
+            toast({
+                title: "エラー",
+                description: err instanceof Error ? err.message : "エラーが発生しました",
+                variant: "destructive",
+                duration: 3000
+            });
         } finally {
             setIsLoading(false);
             setIsConfirmDialogOpen(false);
