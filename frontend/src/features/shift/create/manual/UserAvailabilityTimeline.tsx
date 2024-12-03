@@ -2,11 +2,26 @@ import React from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 
-export default function UserAvailabilityTimeline({ employees, selectedDate }) {
-    const hours = Array.from({ length: 16 }, (_, i) => i + 7);
-    const formatTime = (hour) => `${hour}`;
+type ShiftDetail = {
+    start_time: string;
+    end_time: string;
+};
 
-    const calculateBarStyle = (startTime, endTime) => {
+type Employee = {
+    name: string;
+    shift: ShiftDetail;
+};
+
+interface UserAvailabilityTimelineProps {
+    employees: Employee[];
+    selectedDate: Date;
+}
+
+export default function UserAvailabilityTimeline({ employees, selectedDate }: UserAvailabilityTimelineProps) {
+    const hours: number[] = Array.from({ length: 16 }, (_, i) => i + 7);
+    const formatTime = (hour: number): string => `${hour}`;
+
+    const calculateBarStyle = (startTime: string, endTime: string): React.CSSProperties => {
         const startHour = parseInt(startTime.split(':')[0]);
         const endHour = parseInt(endTime.split(':')[0]);
         const totalWidth = 100;
@@ -20,7 +35,6 @@ export default function UserAvailabilityTimeline({ employees, selectedDate }) {
         };
     };
 
-    // 従業員を出勤時間でソート
     const sortedEmployees = [...employees].sort((a, b) => {
         const timeA = a.shift.start_time;
         const timeB = b.shift.start_time;
