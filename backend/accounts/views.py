@@ -1,7 +1,9 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 from .models import Employee
 from .serializers import EmployeeSerializer
+from rest_framework.decorators import api_view
 
 class EmployeeListCreate(generics.ListCreateAPIView):
     queryset = Employee.objects.all().order_by('created_at')
@@ -49,3 +51,37 @@ class EmployeeRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
             {"message": "従業員を削除しました"},
             status=status.HTTP_204_NO_CONTENT
         )
+
+@api_view(['POST'])
+def set_password(request, employee_id):
+    employee = get_object_or_404(Employee, id=employee_id)
+    password = request.data.get('password')
+    
+    if not password or not password.isdigit() or len(password) != 4:
+        return Response(
+            {"error": "パスワードは4桁の数字である必要があります"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    employee.password = password
+    employee.save()
+    return Response({"message": "パスワードが設定されました"})
+
+@api_view(['POST'])
+def verify_password(request, employee_id):
+    employee = get_object_or_404(Employee, id=employee_id)
+    password = request.data.get('password')
+    
+    if not employee.password:
+        return Response(
+            {"error": "パスワードが設定されていません"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if employee.password != password:
+        return Response(
+            {"error": "パスワードが正しくありません"}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    return Response({"message": "認証成功"})

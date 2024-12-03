@@ -7,6 +7,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
+            'password',
             'can_open',
             'can_close_cleaning',
             'can_close_cashier',

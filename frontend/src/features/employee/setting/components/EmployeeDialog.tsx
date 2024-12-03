@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 
 type EmployeeForm = {
     name: string;
+    password?: string;
     can_open: boolean;
     can_close_cleaning: boolean;
     can_close_cashier: boolean;
@@ -32,7 +33,7 @@ type Props = {
 };
 
 type ToggleOption = {
-    [K in keyof Omit<EmployeeForm, 'name'>]: string;
+    [K in keyof Omit<EmployeeForm, 'name' | 'password'>]: string;
 };
 
 export default function EmployeeDialog({
@@ -45,6 +46,9 @@ export default function EmployeeDialog({
     onDelete,
     setFormData,
 }: Props) {
+    const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+
     const toggleOptions: ToggleOption = {
         can_open: "オープン作業",
         can_close_cleaning: "クローズ作業(洗浄)",
@@ -52,6 +56,30 @@ export default function EmployeeDialog({
         can_close_floor: "クローズ作業(フロア清掃)",
         can_order: "解凍発注作業",
         is_beginner: "新人",
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setPassword(value);
+
+        // パスワードのバリデーション
+        if (value && (!value.match(/^\d+$/) || value.length !== 4)) {
+            setPasswordError("パスワードは4桁の数字を入力してください");
+        } else {
+            setPasswordError("");
+            // パスワードが有効な場合、formDataに追加
+            setFormData({
+                ...formData,
+                password: value || undefined
+            });
+        }
+    };
+
+    const handleSubmit = () => {
+        if (password && passwordError) {
+            return;
+        }
+        onSave();
     };
 
     return (
@@ -81,8 +109,29 @@ export default function EmployeeDialog({
                         />
                     </div>
 
+                    {/* パスワード入力フィールド */}
+                    <div className="space-y-2">
+                        <Label htmlFor="password">
+                            パスワード (誕生日4桁){onDelete && " - 変更する場合のみ入力"}
+                        </Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            placeholder="例: 0704 (7月4日)"
+                            maxLength={4}
+                            className="w-full"
+                        />
+                        {passwordError && (
+                            <div className="text-sm text-red-600">
+                                {passwordError}
+                            </div>
+                        )}
+                    </div>
+
                     <div className="space-y-4">
-                        {(Object.entries(toggleOptions) as [keyof Omit<EmployeeForm, 'name'>, string][]).map(([key, label]) => (
+                        {(Object.entries(toggleOptions) as [keyof Omit<EmployeeForm, 'name' | 'password'>, string][]).map(([key, label]) => (
                             <div key={key} className="flex items-center justify-between">
                                 <Label htmlFor={key} className="cursor-pointer">
                                     {label}
@@ -113,8 +162,8 @@ export default function EmployeeDialog({
 
                         <Button
                             className="flex-1 bg-gray-900"
-                            onClick={onSave}
-                            disabled={isLoading}
+                            onClick={handleSubmit}
+                            disabled={isLoading || (!!password && !!passwordError)}
                         >
                             {isLoading ? (
                                 <div className="flex items-center justify-center gap-2">
