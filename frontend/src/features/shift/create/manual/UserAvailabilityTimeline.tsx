@@ -46,7 +46,7 @@ export default function UserAvailabilityTimeline({ employees, selectedDate }: Us
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-2xl font-semibold">
                 {format(selectedDate, 'yyyy年M月d日(EEEE)', { locale: ja })}の出勤可能な従業員
             </h2>
 
