@@ -113,9 +113,6 @@ export default function ManualShiftCreatePage() {
                 {/* Main content */}
                 <div className="flex-1 p-8">
                     <MainCard
-                        icon={<Calendar className="w-6 h-6 text-gray-600" />}
-                        title="シフトの作成"
-                        description="従業員の希望シフトを確認して作成してください"
                     >
                         <div className="p-6">
                             {isLoading ? (
