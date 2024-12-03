@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
 import MainCard from "@/components/layout/MainCard";
 import { useRouter } from "next/navigation";
+import PasswordDialog from "@/components/ui/PasswordDialog";
 
 // 従業員データの型定義
 type Employee = {
     id: number;
     name: string;
+    password: string | null;
 };
 
 export default function ShiftSubmitPage() {
@@ -21,6 +23,10 @@ export default function ShiftSubmitPage() {
     const [isLoading, setIsLoading] = useState(false);
     // エラーの状態管理
     const [error, setError] = useState("");
+    // パスワードダイアログの状態管理
+    const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+    const [passwordMode, setPasswordMode] = useState<"set" | "verify">("verify");
 
     // コンポーネントマウント時に従業員データを取得
     useEffect(() => {
@@ -46,40 +52,76 @@ export default function ShiftSubmitPage() {
         }
     };
 
-    // 提出状況を確認して適切なページにリダイレクトする関数
-    const handleEmployeeSelect = async (employeeId: number) => {
-        setIsLoading(true);
-        setError("");
+    const handleEmployeeClick = async (employee: Employee) => {
+        setSelectedEmployee(employee);
 
         try {
-            // 次の月の年と月を取得
+            // まずemployeeの情報を最新のものに更新
+            const response = await fetch(`http://localhost:8000/api/accounts/employees/${employee.id}/`);
+            if (!response.ok) throw new Error("従業員情報の取得に失敗しました");
+
+            const updatedEmployee = await response.json();
+
+            if (!updatedEmployee.password) {
+                setPasswordMode("set");
+                setIsPasswordDialogOpen(true);
+            } else {
+                setPasswordMode("verify");
+                setIsPasswordDialogOpen(true);
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "エラーが発生しました");
+        }
+    };
+
+    const handlePasswordSubmit = async (password: string) => {
+        if (!selectedEmployee) return;
+
+        try {
+            const endpoint = passwordMode === "set"
+                ? `http://localhost:8000/api/accounts/employees/${selectedEmployee.id}/set-password/`
+                : `http://localhost:8000/api/accounts/employees/${selectedEmployee.id}/verify-password/`;
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error);
+            }
+
+            setIsPasswordDialogOpen(false);
+
+            // シフト提出状況を確認
             const nextMonth = new Date();
             nextMonth.setMonth(nextMonth.getMonth() + 1);
             const year = nextMonth.getFullYear();
             const month = nextMonth.getMonth() + 1;
 
-            // シフト提出状況を確認
-            const response = await fetch(
-                `http://localhost:8000/api/shifts/draft/${employeeId}/${year}/${month}/`
+            const statusResponse = await fetch(
+                `http://localhost:8000/api/shifts/draft/${selectedEmployee.id}/${year}/${month}/`
             );
 
-            if (!response.ok) {
+            if (!statusResponse.ok) {
                 throw new Error("提出状況の確認に失敗しました");
             }
 
-            const data = await response.json();
+            const statusData = await statusResponse.json();
 
             // 提出済みの場合は提出済みページにリダイレクト
-            if (data.submitted) {
-                router.push(`/shift/submit/${employeeId}/submitted`);
+            if (statusData.submitted) {
+                router.push(`/shift/submit/${selectedEmployee.id}/submitted`);
             } else {
                 // 未提出の場合は通常のシフト提出ページへ
-                router.push(`/shift/submit/${employeeId}`);
+                router.push(`/shift/submit/${selectedEmployee.id}`);
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "エラーが発生しました");
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -116,7 +158,7 @@ export default function ShiftSubmitPage() {
                                             key={employee.id}
                                             variant="outline"
                                             className="w-full justify-start text-left font-normal hover:bg-gray-100"
-                                            onClick={() => handleEmployeeSelect(employee.id)}
+                                            onClick={() => handleEmployeeClick(employee)}
                                             disabled={isLoading}
                                         >
                                             {employee.name}
@@ -134,6 +176,15 @@ export default function ShiftSubmitPage() {
                     </CardContent>
                 </MainCard>
             </div>
+
+            {/* パスワードダイアログ */}
+            <PasswordDialog
+                isOpen={isPasswordDialogOpen}
+                onClose={() => setIsPasswordDialogOpen(false)}
+                onSubmit={handlePasswordSubmit}
+                mode={passwordMode}
+                employeeName={selectedEmployee?.name ?? ""}
+            />
         </div>
     );
 }

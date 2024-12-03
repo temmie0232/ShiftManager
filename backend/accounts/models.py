@@ -2,6 +2,7 @@ from django.db import models
 
 class Employee(models.Model):
     name = models.CharField(max_length=100)
+    password = models.CharField(max_length=4, null=True, blank=True)
     can_open = models.BooleanField(default=False)
     can_close_cleaning = models.BooleanField(default=False)
     can_close_cashier = models.BooleanField(default=False)
