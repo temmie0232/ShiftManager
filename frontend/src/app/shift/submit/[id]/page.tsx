@@ -10,8 +10,8 @@ import MainCard from "@/components/layout/MainCard";
 import ShiftSubmitButtons from "@/features/shift/submit/[id]/components/ShiftSubmitButtons";
 import { useRouter } from "next/navigation";
 import { use } from "react";
+import ConfirmationDialog from "@/features/shift/submit/[id]/components/ConfirmationDialog";
 
-// シフトデータの型定義
 type ShiftData = {
     [key: string]: {
         startTime: string;
@@ -20,7 +20,6 @@ type ShiftData = {
     };
 };
 
-// ドラフトデータの型定義
 type DraftData = {
     shift_details: {
         date: string;
@@ -38,19 +37,10 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
     const employeeId = resolvedParams.id;
     const router = useRouter();
 
-    // 次の月を管理
     const nextMonth = addMonths(startOfMonth(new Date()), 1);
-
-    // 選択された日付を管理
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-
-    // シフトデータを管理
     const [shiftData, setShiftData] = useState<ShiftData>({});
-
-    // 選択中のプリセットを管理
     const [selectedPreset, setSelectedPreset] = useState<TimePreset | null>(null);
-
-    // フォーム入力を管理
     const [monthlyPreference, setMonthlyPreference] = useState({
         minHours: 0,
         maxHours: 0,
@@ -58,29 +48,22 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
         maxDaysPerWeek: 0,
     });
 
-    // ローディング状態の管理
     const [isLoading, setIsLoading] = useState(false);
     const [draftSaving, setDraftSaving] = useState(false);
-
-    // エラーメッセージの管理
     const [error, setError] = useState("");
-
-    // 成功メッセージの管理
     const [success, setSuccess] = useState(false);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
-    // コンポーネントマウント時にドラフトデータを取得
     useEffect(() => {
         fetchDraftData();
     }, []);
 
-    // ドラフトデータを取得する関数
     const fetchDraftData = async () => {
         try {
             const response = await fetch(`http://localhost:8000/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`);
 
             if (!response.ok) {
                 if (response.status === 303) {
-                    // 提出済みの場合は提出済みページにリダイレクト
                     router.push(`/shift/submit/${employeeId}/submitted`);
                     return;
                 }
@@ -89,7 +72,6 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
 
             const data: DraftData = await response.json();
 
-            // シフトデータの復元
             const restoredShiftData: ShiftData = {};
             data.shift_details.forEach(detail => {
                 restoredShiftData[detail.date] = {
@@ -111,7 +93,6 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
         }
     };
 
-    // 日付が選択された時の処理
     const handleDateSelect = (date: Date) => {
         if (!selectedPreset) {
             alert("時間帯を先に選択してください");
@@ -129,14 +110,12 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
         }));
     };
 
-    // 曜日が選択された時の処理
     const handleWeekdaySelect = (weekday: number) => {
         if (!selectedPreset) {
             alert("時間帯を先に選択してください");
             return;
         }
 
-        // 次の月のすべての日付に対して
         const newShiftData = { ...shiftData };
         for (let day = 1; day <= 31; day++) {
             const date = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), day);
@@ -152,29 +131,29 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
         setShiftData(newShiftData);
     };
 
-    // シフト希望を送信
-    const handleSubmit = async () => {
-        setIsLoading(true);
-        setError("");
-        setSuccess(false);
-
+    const handleSubmit = () => {
         if (Object.keys(shiftData).length === 0) {
             setError("シフトが入力されていません");
-            setIsLoading(false);
             return;
         }
 
         if (!monthlyPreference.minHours || !monthlyPreference.maxHours) {
             setError("月の希望労働時間を入力してください");
-            setIsLoading(false);
             return;
         }
 
         if (!monthlyPreference.minDaysPerWeek || !monthlyPreference.maxDaysPerWeek) {
             setError("週の希望労働日数を入力してください");
-            setIsLoading(false);
             return;
         }
+
+        setIsConfirmDialogOpen(true);
+    };
+
+    const handleConfirmSubmit = async () => {
+        setIsLoading(true);
+        setError("");
+        setSuccess(false);
 
         try {
             const shift_details = Object.entries(shiftData).map(([date, shift]) => ({
@@ -211,10 +190,10 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
             setError(err instanceof Error ? err.message : "エラーが発生しました");
         } finally {
             setIsLoading(false);
+            setIsConfirmDialogOpen(false);
         }
     };
 
-    // 一時保存の処理
     const handleDraftSave = async () => {
         setDraftSaving(true);
         setError("");
@@ -244,7 +223,6 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
                 throw new Error("一時保存に失敗しました");
             }
 
-            // 成功メッセージを表示（一時的に）
             setSuccess(true);
             setTimeout(() => setSuccess(false), 3000);
         } catch (err) {
@@ -257,7 +235,6 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
-                {/* 戻るリンク */}
                 <HomeLink href="/shift/submit" text="従業員選択へ戻る" />
 
                 <MainCard
@@ -265,7 +242,6 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
                     description="カレンダーから希望の日時を選択してください"
                 >
                     <CardContent className="space-y-6">
-                        {/* カレンダー */}
                         <CustomCalendar
                             selectedDates={selectedDates}
                             onDateSelect={handleDateSelect}
@@ -275,15 +251,12 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
                             className="w-full"
                         />
 
-                        {/* 時間帯選択ドロワー */}
                         <TimePresetDrawer
                             selectedPreset={selectedPreset}
                             onPresetSelect={setSelectedPreset}
                         />
 
-                        {/* 月間・週間希望設定 */}
                         <div className="space-y-6">
-                            {/* 月間希望時間 */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">月の労働時間 (希望)</label>
                                 <div className="flex items-center gap-2">
@@ -312,7 +285,6 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
                                 </div>
                             </div>
 
-                            {/* 週間希望日数 */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">週の労働日数 (希望)</label>
                                 <div className="flex items-center gap-2">
@@ -342,14 +314,12 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
                             </div>
                         </div>
 
-                        {/* エラーメッセージ */}
                         {error && (
                             <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
                                 {error}
                             </div>
                         )}
 
-                        {/* 成功メッセージ */}
                         {success && (
                             <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md">
                                 シフトを保存しました！
@@ -367,6 +337,13 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
                     </CardFooter>
                 </MainCard>
             </div>
+
+            <ConfirmationDialog
+                isOpen={isConfirmDialogOpen}
+                onClose={() => setIsConfirmDialogOpen(false)}
+                onConfirm={handleConfirmSubmit}
+                isLoading={isLoading}
+            />
         </div>
     );
 }

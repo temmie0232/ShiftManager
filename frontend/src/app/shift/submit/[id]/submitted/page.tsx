@@ -149,14 +149,6 @@ export default function SubmittedPage({ params }: { params: Promise<{ id: string
                             </>
                         )}
 
-                        <div className="flex justify-center pt-4">
-                            <Link href="/home">
-                                <Button className="bg-gray-900">
-                                    <Home className="mr-2 h-4 w-4" />
-                                    ホームに戻る
-                                </Button>
-                            </Link>
-                        </div>
                     </CardContent>
                 </Card>
             </div>
