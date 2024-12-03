@@ -15,12 +15,12 @@ export default function ShiftSubmitButtons({
     draftSaving = false
 }: ShiftSubmitButtonsProps) {
     return (
-        <div className="space-y-3">
+        <div className="flex flex-col items-center gap-3 w-full max-w-md mx-auto">
             {/* 一時保存ボタン */}
             <button
                 onClick={onDraft}
                 disabled={draftSaving || isLoading}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 flex items-center justify-center gap-2"
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 flex items-center justify-center gap-2 mb-2"
             >
                 {draftSaving ? (
                     <div className="flex items-center gap-2">
@@ -36,12 +36,14 @@ export default function ShiftSubmitButtons({
             </button>
 
             {/* 提出ボタン */}
-            <SubmitButton
-                label="希望を提出"
-                onClick={onSave}
-                isLoading={isLoading}
-                iconType="save"
-            />
+            <div className="w-full">
+                <SubmitButton
+                    label="希望を提出"
+                    onClick={onSave}
+                    isLoading={isLoading}
+                    iconType="save"
+                />
+            </div>
         </div>
     );
 }
