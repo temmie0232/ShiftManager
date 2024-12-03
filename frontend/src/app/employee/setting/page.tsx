@@ -11,6 +11,7 @@ import { CardContent } from "@/components/ui/card";
 type Employee = {
     id: number;
     name: string;
+    password?: string;
     can_open: boolean;
     can_close_cleaning: boolean;
     can_close_cashier: boolean;
@@ -20,12 +21,12 @@ type Employee = {
 };
 
 // フォーム用の型定義
-// Employee型からidを除外した型を作成（新規作成時にはidは不要なため）
 type EmployeeForm = Omit<Employee, "id">;
 
 // フォームの初期状態を定義
 const initialFormState: EmployeeForm = {
     name: "",
+    password: "",
     can_open: false,
     can_close_cleaning: false,
     can_close_cashier: false,
@@ -101,15 +102,37 @@ export default function EmployeeSettingPage() {
 
             const method = editingEmployee ? "PUT" : "POST";
 
+            // メインのデータを送信（パスワードを除く）
+            const { password, ...employeeData } = formData;
             const response = await fetch(url, {
                 method,
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(employeeData),
             });
 
             if (!response.ok) throw new Error("保存に失敗しました");
+            const savedEmployee = await response.json();
+
+            // パスワードが入力されている場合、パスワード設定APIを呼び出す
+            if (password) {
+                const passwordUrl = `http://localhost:8000/api/accounts/employees/${editingEmployee?.id || savedEmployee.id}/set-password/`;
+                const passwordResponse = await fetch(passwordUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        password: password
+                    }),
+                });
+
+                if (!passwordResponse.ok) {
+                    const errorData = await passwordResponse.json();
+                    throw new Error(errorData.error || "パスワードの設定に失敗しました");
+                }
+            }
 
             await fetchEmployees();
             setIsDialogOpen(false);
@@ -194,7 +217,6 @@ export default function EmployeeSettingPage() {
                                         </div>
                                     ))}
 
-                                    {/* 従業員追加ボタン */}
                                     <Button
                                         className="w-full bg-white hover:bg-gray-50 text-gray-600 border-2 border-dashed"
                                         variant="outline"
@@ -216,11 +238,14 @@ export default function EmployeeSettingPage() {
                 isLoading={isLoading}
                 error={error}
                 formData={formData}
-                onClose={() => setIsDialogOpen(false)}
+                onClose={() => {
+                    setIsDialogOpen(false);
+                    setFormData(initialFormState);
+                }}
                 onSave={handleSubmit}
                 onDelete={editingEmployee ? handleDelete : undefined}
                 setFormData={setFormData}
             />
-        </div >
+        </div>
     );
 }
