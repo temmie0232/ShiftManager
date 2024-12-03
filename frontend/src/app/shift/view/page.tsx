@@ -12,8 +12,8 @@ export default function ShiftViewPage() {
                 <HomeLink />
 
                 <MainCard
-                    title="シフト確認"
-                    description="提出されたシフトを確認できます"
+                    title="シフト確認 / 編集"
+                    description="提出されたシフトを確認 / 編集(個人タブから)できます"
                 >
                     <div className="p-6">
                         <Tabs defaultValue="individual" className="w-full">

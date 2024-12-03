@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast"; // toastをインポート
 import PDFUploader from "@/features/shift/send/components/PDFUploader";
 
 export default function ShiftSendPage() {
@@ -35,8 +36,20 @@ export default function ShiftSendPage() {
 
             setSuccess(true);
             setMessage("");
+            toast({
+                title: "送信成功",
+                description: "通知の送信が完了しました",
+                duration: 3000,
+            });
         } catch (err) {
-            setError(err instanceof Error ? err.message : "エラーが発生しました");
+            const errorMessage = err instanceof Error ? err.message : "エラーが発生しました";
+            setError(errorMessage);
+            toast({
+                title: "エラー",
+                description: errorMessage,
+                variant: "destructive",
+                duration: 3000,
+            });
         } finally {
             setIsLoading(false);
         }

@@ -1,5 +1,7 @@
-"use client"
+"use client";
+
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast"; // toastをインポート
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Send, ArrowLeft, CalendarRange, FileSpreadsheet } from "lucide-react";
@@ -10,28 +12,19 @@ import { BiSpreadsheet } from "react-icons/bi";
 import SubmitButton from "@/components/ui/SubmitButton";
 
 export default function ShiftFormSendPage() {
-
-    // メッセージの内容を管理
     const [message, setMessage] = useState("");
-    // 送信中かどうかを管理
     const [isLoading, setIsLoading] = useState(false);
-    // エラーメッセージを管理
     const [error, setError] = useState("");
-    // 送信成功を管理
     const [success, setSuccess] = useState(false);
 
-    // フォーム送信時の処理を行う関数
     const handleSubmit = async (e: React.FormEvent) => {
-        // フォームのデフォルトの送信動作を防止
         e.preventDefault();
 
-        // 送信開始時の状態設定
-        setIsLoading(true);    // ローディング状態を開始
-        setError("");          // エラーメッセージをリセット
-        setSuccess(false);     // 成功状態をリセット
+        setIsLoading(true);
+        setError("");
+        setSuccess(false);
 
         try {
-            // APIエンドポイントへのPOSTリクエスト
             const response = await fetch("http://localhost:8000/api/notifications/send-shift-form/", {
                 method: "POST",
                 headers: {
@@ -39,25 +32,32 @@ export default function ShiftFormSendPage() {
                 },
                 body: JSON.stringify({
                     message,
-                    // 現在のURLからフォームのURLを生成
                     form_url: `${window.location.origin}/staff`,
                 }),
             });
 
-            // レスポンスが正常でない場合はエラーを投げる
             if (!response.ok) {
                 throw new Error("送信に失敗しました");
             }
 
-            // 送信成功時の処理
             setSuccess(true);
-            setMessage("");     // 入力フォームをクリア
+            setMessage("");
+            toast({
+                title: "送信成功",
+                description: "シフト提出フォームの送信が完了しました",
+                duration: 3000,
+            });
         } catch (err) {
-            // エラー発生時の処理
-            setError(err instanceof Error ? err.message : "エラーが発生しました");
+            const errorMessage = err instanceof Error ? err.message : "エラーが発生しました";
+            setError(errorMessage);
+            toast({
+                title: "エラー",
+                description: errorMessage,
+                variant: "destructive",
+                duration: 3000,
+            });
         } finally {
-            // 処理完了時の共通処理
-            setIsLoading(false);  // ローディング状態を解除
+            setIsLoading(false);
         }
     };
 
@@ -67,15 +67,11 @@ export default function ShiftFormSendPage() {
                 {/* ナビゲーションリンク */}
                 <HomeLink />
 
-
                 <MainCard
                     icon={<FileSpreadsheet className="w-6 h-6 text-gray-600" />}
                     title="シフト提出フォームを送信"
                     description="LINEグループにシフト提出用のURLを送信します"
                 >
-
-
-
                     <form onSubmit={handleSubmit}>
                         <CardContent>
                             <div className="space-y-4">

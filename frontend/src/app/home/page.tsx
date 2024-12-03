@@ -27,7 +27,7 @@ export default function HomePage() {
                     <LinkCard
                         href="/shift/view"
                         icon={<ListChecks className="w-6 h-6 text-gray-600" />}
-                        title="提出されたシフトの確認"
+                        title="提出されたシフトの確認 / 編集"
                         description="提出された希望シフトを確認する。"
                     />
                     <LinkCard
