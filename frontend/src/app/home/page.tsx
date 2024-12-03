@@ -31,7 +31,7 @@ export default function HomePage() {
                         description="提出された希望シフトを確認する。"
                     />
                     <LinkCard
-                        href="/shift"
+                        href="/shift/create"
                         icon={<Calendar className="w-6 h-6 text-gray-600" />}
                         title="シフトの作成"
                         description="提出された希望シフトから新しいシフトを作成します"
