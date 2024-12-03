@@ -70,8 +70,8 @@ export default function ShiftFormSendPage() {
 
                 <MainCard
                     icon={<FileSpreadsheet className="w-6 h-6 text-gray-600" />}
-                    title="確定したシフト(PDF)をLINEグループに送信します"
-                    description="LINEグループにシフト提出フォームのURLを送信します"
+                    title="シフト提出フォームを送信"
+                    description="LINEグループにシフト提出用のURLを送信します"
                 >
 
 

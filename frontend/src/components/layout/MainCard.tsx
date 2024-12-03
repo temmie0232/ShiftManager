@@ -1,12 +1,10 @@
-"use client";
-
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { ReactNode } from "react";
 
 interface MainCardProps {
     icon?: ReactNode;         // アイコン
-    title: string;           // タイトル
-    description: ReactNode;     // 説明 (タグを使いたいためReactNode)
+    title?: string;          // タイトル (オプショナル)
+    description?: ReactNode;  // 説明 (オプショナル)
     children?: ReactNode;     // 中身
     className?: string;      // 全体のカスタムクラス
     href?: string;
@@ -22,10 +20,13 @@ export default function MainCard({ icon, title, description, children, className
                         {icon}
                     </div>
                 )}
-                <div className="space-y-2">
-                    <CardTitle className="font-semibold text-2xl">{title}</CardTitle>
-                    <CardDescription className="text-gray-600">{description}</CardDescription>
-                </div>
+                {/* タイトルまたは説明がある場合のみdivを表示 */}
+                {(title || description) && (
+                    <div className="space-y-2">
+                        {title && <CardTitle className="font-semibold text-2xl">{title}</CardTitle>}
+                        {description && <CardDescription className="text-gray-600">{description}</CardDescription>}
+                    </div>
+                )}
             </CardHeader>
             {children}
         </Card>

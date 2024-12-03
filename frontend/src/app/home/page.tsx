@@ -1,5 +1,5 @@
 import LinkCard from "@/components/ui/LinkCard";
-import { FileSpreadsheet, Calendar, Send, Users, ListCheck, ListChecks } from "lucide-react";
+import { FileSpreadsheet, Calendar, Send, Users, ListCheck, ListChecks, ArchiveRestore } from "lucide-react";
 
 export default function HomePage() {
     return (
@@ -41,6 +41,12 @@ export default function HomePage() {
                         icon={<Users className="w-6 h-6 text-gray-600" />}
                         title="従業員設定"
                         description="従業員情報の追加・編集・削除を行います"
+                    />
+                    <LinkCard
+                        href="/shift/submit"
+                        icon={<ArchiveRestore className="w-6 h-6 text-gray-600" />}
+                        title="希望シフトの提出"
+                        description="あ"
                     />
                 </div>
             </div>
