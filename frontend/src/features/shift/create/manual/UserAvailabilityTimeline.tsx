@@ -13,17 +13,19 @@ export default function UserAvailabilityTimeline({ employees, selectedDate }) {
         const startPosition = ((startHour - 7) / 15) * totalWidth;
         const width = ((endHour - startHour) / 15) * totalWidth;
 
-        console.log('Start Hour:', startHour);
-        console.log('End Hour:', endHour);
-        console.log('Start Position:', startPosition);
-        console.log('Width:', width);
-
         return {
             left: `${startPosition}%`,
             width: `${width}%`,
             backgroundColor: '#333333'
         };
     };
+
+    // 従業員を出勤時間でソート
+    const sortedEmployees = [...employees].sort((a, b) => {
+        const timeA = a.shift.start_time;
+        const timeB = b.shift.start_time;
+        return timeA.localeCompare(timeB);
+    });
 
     return (
         <div className="space-y-6">
@@ -32,19 +34,20 @@ export default function UserAvailabilityTimeline({ employees, selectedDate }) {
             </h2>
 
             <div className="relative border rounded-lg bg-white p-6">
-                <div className="flex justify-between mb-8 border-b pb-2">
-                    <div className="w-24 flex-shrink-0"></div>
-                    {hours.map(hour => (
-                        <div key={hour} className="text-sm text-gray-500">
-                            {formatTime(hour)}
+                <div className="w-[1200px] min-w-full overflow-x-auto">
+                    <div className="flex justify-between mb-8 border-b pb-2">
+                        <div className="w-24 flex-shrink-0"></div>
+                        <div className="flex-1 flex">
+                            {hours.map(hour => (
+                                <div key={hour} className="flex-1 text-sm text-gray-500 text-center">
+                                    {formatTime(hour)}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </div>
 
-                <div>
-                    {employees.map((emp, index) => {
-                        console.log('Employee Shift:', emp.shift);
-                        return (
+                    <div>
+                        {sortedEmployees.map((emp, index) => (
                             <div key={index} className="relative h-12 flex items-center">
                                 <div className="w-24 text-sm text-center flex-shrink-0 font-medium">
                                     {emp.name}
@@ -60,8 +63,8 @@ export default function UserAvailabilityTimeline({ employees, selectedDate }) {
                                     </div>
                                 </div>
                             </div>
-                        );
-                    })}
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
