@@ -12,7 +12,11 @@ import { useRouter } from "next/navigation";
 import { use } from "react";
 import ConfirmationDialog from "@/features/shift/submit/[id]/components/ConfirmationDialog";
 import { toast } from "@/hooks/use-toast";
-import { Check } from "lucide-react";
+import { Check, HelpCircle, Plus } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Dialog } from "@radix-ui/react-dialog";
+import { DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type ShiftData = {
     [key: string]: {
@@ -55,6 +59,13 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+    const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
+
+    const carouselImages = [
+        { src: "/images/step1.png", alt: "ステップ1: 時間帯を作成 / 選択" },
+        { src: "/images/step2.png", alt: "ステップ2: カレンダーをクリック" },
+        { src: "/images/step3.png", alt: "ステップ3: 曜日をクリック" },
+    ];
 
     useEffect(() => {
         fetchDraftData();
@@ -257,11 +268,47 @@ export default function ShiftSubmitPage({ params }: { params: Promise<{ id: stri
             <div className="max-w-2xl mx-auto space-y-8">
                 <HomeLink href="/shift/submit" text="従業員選択へ戻る" />
 
+
                 <MainCard
                     title="シフト希望提出"
-                    description="カレンダーから希望の日時を選択してください"
                 >
                     <CardContent className="space-y-6">
+                        <div className="flex justify-between items-center">
+                            <Dialog open={isHelpDialogOpen} onOpenChange={setIsHelpDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="w-full">
+                                        <HelpCircle className="h-4 w-4" />
+                                        使い方
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <h2 className="text-lg font-semibold mb-4">使い方ガイド</h2>
+                                    <ol className="list-decimal list-inside space-y-2">
+                                        <li>働きたい時間帯を <strong>作成</strong> / <strong>選択</strong> する。</li>
+                                        <li>適用したい日付を選択する。</li>
+                                        <li>※(曜日を選択するとその月の曜日すべてに適用される。)</li>
+                                    </ol>
+                                    <p className="mt-4 text-sm text-gray-700">
+                                        <strong>例:</strong> 毎週土曜日、13:00~22:00のシフトを入れたい場合
+                                    </p>
+                                    <ol className="list-decimal list-inside space-y-2 pl-4 mt-2">
+                                        <li>時間帯を選択 → <strong>新しい時間帯を追加</strong></li>
+                                        <li>
+                                            名前と、開始時間・終了時間を入力し、保存する。<br />
+                                            <code className="block bg-gray-100 p-2 rounded mt-1">
+                                                名前: 土曜がんばる<br />
+                                                開始時間: 13:00<br />
+                                                終了時間: 22:00
+                                            </code>
+                                        </li>
+                                        <li>
+                                            作成した時間帯をクリックし、カレンダーの <strong>(土)</strong> という文字をクリック
+                                        </li>
+                                    </ol>
+                                </DialogContent>
+                            </Dialog>
+
+                        </div>
                         <CustomCalendar
                             selectedDates={selectedDates}
                             onDateSelect={handleDateSelect}
