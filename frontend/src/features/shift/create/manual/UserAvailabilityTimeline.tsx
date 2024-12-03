@@ -9,7 +9,7 @@ type ShiftDetail = {
 
 type Employee = {
     name: string;
-    shift: ShiftDetail;
+    shift: ShiftDetail | undefined;
 };
 
 interface UserAvailabilityTimelineProps {
@@ -35,11 +35,14 @@ export default function UserAvailabilityTimeline({ employees, selectedDate }: Us
         };
     };
 
-    const sortedEmployees = [...employees].sort((a, b) => {
-        const timeA = a.shift.start_time;
-        const timeB = b.shift.start_time;
-        return timeA.localeCompare(timeB);
-    });
+    // シフトが設定されている従業員のみをフィルタリングしてソート
+    const sortedEmployees = [...employees]
+        .filter((emp): emp is Employee & { shift: ShiftDetail } => emp.shift !== undefined)
+        .sort((a, b) => {
+            const timeA = a.shift.start_time;
+            const timeB = b.shift.start_time;
+            return timeA.localeCompare(timeB);
+        });
 
     return (
         <div className="space-y-6">
