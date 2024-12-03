@@ -24,4 +24,8 @@ urlpatterns = [
     path('history/<int:employee_id>/',
          views.HistoricalShiftView.as_view(),
          name='shift-history'),
+
+     path('history/<int:employee_id>/update/',
+          views.update_shift,
+          name='update-shift'),
 ]

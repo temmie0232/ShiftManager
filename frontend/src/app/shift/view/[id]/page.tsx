@@ -1,12 +1,14 @@
 "use client"
+
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import CustomCalendar from "@/components/ui/CustomCalendar";
-import { addMonths, startOfMonth } from "date-fns";
+import { addMonths, startOfMonth, format } from "date-fns";
 import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
 import { use } from 'react';
 import { Calendar } from "lucide-react";
+import ShiftEditDialog, { ShiftEditData } from '@/features/shift/view/[id]/components/ShiftEditDialog';
 
 type ShiftData = {
     year: number;
@@ -34,6 +36,7 @@ type CalendarShiftData = {
 export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const employeeId = resolvedParams.id;
+    const nextMonth = addMonths(startOfMonth(new Date()), 1);
 
     const [shiftData, setShiftData] = useState<ShiftData | null>(null);
     const [employeeName, setEmployeeName] = useState("");
@@ -41,7 +44,10 @@ export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const nextMonth = addMonths(startOfMonth(new Date()), 1);
+    // Dialog states
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [isEditLoading, setIsEditLoading] = useState(false);
 
     useEffect(() => {
         Promise.all([
@@ -98,6 +104,60 @@ export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: 
         }
     };
 
+    const handleDateSelect = (date: Date) => {
+        setSelectedDate(date);
+        setIsEditDialogOpen(true);
+    };
+
+    const handleShiftSave = async (shiftData: ShiftEditData) => {
+        if (!selectedDate) return;
+
+        setIsEditLoading(true);
+        try {
+            const dateString = format(selectedDate, 'yyyy-MM-dd');
+            const year = nextMonth.getFullYear();
+            const month = nextMonth.getMonth() + 1;
+
+            const response = await fetch(
+                `http://localhost:8000/api/shifts/history/${employeeId}/update/`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        year,
+                        month,
+                        date: dateString,
+                        start_time: shiftData.startTime,
+                        end_time: shiftData.endTime,
+                        is_holiday: shiftData.isHoliday
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("シフトの更新に失敗しました");
+            }
+
+            // Update local state
+            setCalendarData(prev => ({
+                ...prev,
+                [dateString]: {
+                    startTime: shiftData.startTime,
+                    endTime: shiftData.endTime,
+                    color: shiftData.isHoliday ? '#333333' : '#f3f4f6'
+                }
+            }));
+
+            setIsEditDialogOpen(false);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "エラーが発生しました");
+        } finally {
+            setIsEditLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
@@ -137,7 +197,7 @@ export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: 
 
                                 <CustomCalendar
                                     selectedDates={[]}
-                                    onDateSelect={() => { }}
+                                    onDateSelect={handleDateSelect}
                                     onWeekdaySelect={() => { }}
                                     shiftData={calendarData}
                                     currentMonth={nextMonth}
@@ -148,6 +208,23 @@ export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: 
                     </CardContent>
                 </MainCard>
             </div>
+
+            {selectedDate && (
+                <ShiftEditDialog
+                    isOpen={isEditDialogOpen}
+                    onClose={() => setIsEditDialogOpen(false)}
+                    onSave={handleShiftSave}
+                    date={selectedDate}
+                    isLoading={isEditLoading}
+                    initialData={
+                        calendarData[format(selectedDate, 'yyyy-MM-dd')] ? {
+                            startTime: calendarData[format(selectedDate, 'yyyy-MM-dd')].startTime,
+                            endTime: calendarData[format(selectedDate, 'yyyy-MM-dd')].endTime,
+                            isHoliday: calendarData[format(selectedDate, 'yyyy-MM-dd')].color === '#333333'
+                        } : undefined
+                    }
+                />
+            )}
         </div>
     );
 }

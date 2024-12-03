@@ -1,11 +1,12 @@
 from rest_framework import status, views, generics
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from accounts.models import Employee
 from .models import (
     TimePreset, ShiftSubmissionStatus, DraftShiftRequest,
-    DraftShiftDetail, ShiftRequest
+    DraftShiftDetail, ShiftRequest, ShiftDetail
 )
 from .serializers import (
     TimePresetSerializer, DraftShiftRequestSerializer,
@@ -88,7 +89,6 @@ class DraftShiftView(views.APIView):
 class SubmitShiftView(views.APIView):
     def post(self, request, employee_id, year, month):
         """シフトの最終提出"""
-        # 従業員の存在確認
         employee = get_object_or_404(Employee, id=employee_id)
         
         # シフト提出状況を確認
@@ -107,7 +107,6 @@ class SubmitShiftView(views.APIView):
             month=month
         )
 
-        # シリアライザーにコンテキストを追加
         serializer = ShiftRequestSerializer(
             data=request.data,
             context={
@@ -145,7 +144,6 @@ class HistoricalShiftView(views.APIView):
         """過去のシフト履歴の取得"""
         employee = get_object_or_404(Employee, id=employee_id)
         
-        # クエリパラメータから年と月を取得
         year = request.query_params.get('year')
         month = request.query_params.get('month')
         
@@ -160,3 +158,46 @@ class HistoricalShiftView(views.APIView):
         
         serializer = HistoricalShiftRequestSerializer(queryset, many=True)
         return Response(serializer.data)
+
+@api_view(['PUT'])
+def update_shift(request, employee_id):
+    try:
+        # Get the shift request for the specified month
+        shift_request = ShiftRequest.objects.get(
+            employee_id=employee_id,
+            year=request.data.get('year'),
+            month=request.data.get('month')
+        )
+        
+        # Find or create the shift detail for the specified date
+        shift_detail, created = ShiftDetail.objects.get_or_create(
+            shift_request=shift_request,
+            date=request.data.get('date')
+        )
+        
+        # Update the shift detail
+        shift_detail.start_time = request.data.get('start_time')
+        shift_detail.end_time = request.data.get('end_time')
+        shift_detail.is_holiday = request.data.get('is_holiday')
+        shift_detail.save()
+        
+        return Response({
+            'message': 'シフトを更新しました',
+            'detail': {
+                'date': shift_detail.date,
+                'start_time': shift_detail.start_time,
+                'end_time': shift_detail.end_time,
+                'is_holiday': shift_detail.is_holiday
+            }
+        })
+        
+    except ShiftRequest.DoesNotExist:
+        return Response(
+            {'error': 'シフトが見つかりません'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
