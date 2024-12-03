@@ -27,12 +27,12 @@ type ShiftData = {
 };
 
 export default function ManualShiftCreatePage() {
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const nextMonth = addMonths(startOfMonth(new Date()), 1);
+    const [selectedDate, setSelectedDate] = useState(nextMonth); // 初期値を nextMonth に変更
     const [employees, setEmployees] = useState<ShiftData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const nextMonth = addMonths(startOfMonth(new Date()), 1);
     const days = eachDayOfInterval({
         start: startOfMonth(nextMonth),
         end: endOfMonth(nextMonth)
@@ -95,8 +95,8 @@ export default function ManualShiftCreatePage() {
                                 key={day.toString()}
                                 onClick={() => setSelectedDate(day)}
                                 className={`w-full text-center p-3 rounded-lg transition-colors ${isSameDay(day, selectedDate)
-                                        ? "bg-gray-900 text-white"
-                                        : "hover:bg-gray-100"
+                                    ? "bg-gray-900 text-white"
+                                    : "hover:bg-gray-100"
                                     }`}
                             >
                                 <div className="font-medium">
