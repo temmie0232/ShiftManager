@@ -15,14 +15,14 @@ export default function HomePage() {
                     <LinkCard
                         href="/shift/form-send"
                         icon={<FileSpreadsheet className="w-6 h-6 text-gray-600" />}
-                        title="シフトの提出フォームの送信"
-                        description="シフト提出フォームをLINEグループに送信します"
+                        title="シフトの提出URLの送信"
+                        description="シフト提出用のURLをLINEグループに送信します"
                     />
                     <LinkCard
                         href="/shift/send"
                         icon={<Send className="w-6 h-6 text-gray-600" />}
                         title="作成済みシフトの送信"
-                        description="確定したシフトをLINEグループに送信します"
+                        description="確定したシフト(pdf)をLINEグループに送信します"
                     />
                     <LinkCard
                         href="/shift/view"

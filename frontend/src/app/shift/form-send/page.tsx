@@ -44,7 +44,7 @@ export default function ShiftFormSendPage() {
             setMessage("");
             toast({
                 title: "送信成功",
-                description: "シフト提出フォームの送信が完了しました",
+                description: "シフト提出用のURLの送信が完了しました",
                 duration: 3000,
             });
         } catch (err) {
@@ -69,7 +69,7 @@ export default function ShiftFormSendPage() {
 
                 <MainCard
                     icon={<FileSpreadsheet className="w-6 h-6 text-gray-600" />}
-                    title="シフト提出フォームを送信"
+                    title="シフト提出用URLを送信"
                     description="LINEグループにシフト提出用のURLを送信します"
                 >
                     <form onSubmit={handleSubmit}>
