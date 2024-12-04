@@ -24,13 +24,43 @@ class TimePresetListCreateView(generics.ListCreateAPIView):
         employee_id = self.kwargs['employee_id']
         serializer.save(employee_id=employee_id)
 
-class TimePresetDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = TimePresetSerializer
-    lookup_url_kwarg = 'preset_id'
+class TimePresetDetailView(views.APIView):
+    def get(self, request, employee_id, preset_id):
+        """特定のプリセットを取得"""
+        preset = get_object_or_404(TimePreset, employee_id=employee_id, id=preset_id)
+        serializer = TimePresetSerializer(preset)
+        return Response(serializer.data)
 
-    def get_queryset(self):
-        employee_id = self.kwargs['employee_id']
-        return TimePreset.objects.filter(employee_id=employee_id)
+    def put(self, request, employee_id, preset_id):
+        """プリセットを更新"""
+        preset = get_object_or_404(TimePreset, employee_id=employee_id, id=preset_id)
+        serializer = TimePresetSerializer(preset, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, employee_id, preset_id):
+        """プリセットを削除"""
+        preset = get_object_or_404(TimePreset, employee_id=employee_id, id=preset_id)
+        preset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class TimePresetView(views.APIView):
+    def get(self, request, employee_id):
+        """従業員のプリセット一覧を取得"""
+        presets = TimePreset.objects.filter(employee_id=employee_id)
+        serializer = TimePresetSerializer(presets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, employee_id):
+        """新しいプリセットを作成"""
+        serializer = TimePresetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(employee_id=employee_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class DraftShiftView(views.APIView):
     def get(self, request, employee_id, year, month):

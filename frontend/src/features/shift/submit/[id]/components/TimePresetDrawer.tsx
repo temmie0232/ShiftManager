@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Plus, Clock, PenSquare, Trash2 } from "lucide-react"
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 export type TimePreset = {
     id: string;
@@ -16,6 +17,7 @@ export type TimePreset = {
 interface TimePresetDrawerProps {
     selectedPreset: TimePreset | null;
     onPresetSelect: (preset: TimePreset) => void;
+    employeeId: string;
 }
 
 // 固定の休みプリセット
@@ -34,17 +36,33 @@ const TIME_OPTIONS = Array.from({ length: 31 }, (_, i) => {
     return `${hour.toString().padStart(2, '0')}:${minute}`;
 });
 
-export function TimePresetDrawer({ selectedPreset, onPresetSelect }: TimePresetDrawerProps) {
-    // プリセットの状態管理（カスタムプリセットのみ）
-    const [presets, setPresets] = useState<TimePreset[]>([
-        { id: '1', name: '早番', startTime: '08:00', endTime: '16:00' },
-        { id: '2', name: '遅番', startTime: '13:00', endTime: '21:00' },
-    ]);
-
-    // 新規作成・編集用の状態
+export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }: TimePresetDrawerProps) {
+    const [presets, setPresets] = useState<TimePreset[]>([]);
     const [editingPreset, setEditingPreset] = useState<TimePreset | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // プリセットの取得
+    useEffect(() => {
+        fetchPresets();
+    }, [employeeId]);
+
+    const fetchPresets = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shifts/presets/${employeeId}/`);
+            if (!response.ok) throw new Error("プリセットの取得に失敗しました");
+            const data = await response.json();
+            setPresets(data);
+        } catch (err) {
+            console.error('プリセットの取得エラー:', err);
+            toast({
+                title: "エラー",
+                description: "プリセットの取得に失敗しました",
+                variant: "destructive",
+            });
+        }
+    };
 
     const handlePresetSelect = (preset: TimePreset) => {
         onPresetSelect(preset);
@@ -59,23 +77,70 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect }: TimePresetD
     };
 
     // プリセットの追加・編集
-    const handleSavePreset = (preset: TimePreset) => {
-        if (preset.id) {
-            setPresets(prev => prev.map(p => p.id === preset.id ? preset : p));
-        } else {
-            const newPreset = {
-                ...preset,
-                id: Date.now().toString()
-            };
-            setPresets(prev => [...prev, newPreset]);
+    const handleSavePreset = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const formData = new FormData(e.currentTarget);
+        const presetData = {
+            name: formData.get('name') as string,
+            startTime: formData.get('startTime') as string,
+            endTime: formData.get('endTime') as string,
+        };
+
+        try {
+            const url = editingPreset
+                ? `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/presets/${employeeId}/${editingPreset.id}/`
+                : `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/presets/${employeeId}/`;
+
+            const response = await fetch(url, {
+                method: editingPreset ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(presetData),
+            });
+
+            if (!response.ok) throw new Error("プリセットの保存に失敗しました");
+
+            await fetchPresets();
+            setIsDialogOpen(false);
+            toast({
+                title: "成功",
+                description: `プリセットを${editingPreset ? '更新' : '作成'}しました`,
+            });
+        } catch (err) {
+            toast({
+                title: "エラー",
+                description: err instanceof Error ? err.message : "エラーが発生しました",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
         }
-        setIsDialogOpen(false);
     };
 
     // プリセットの削除
-    const handleDeletePreset = (id: string) => {
-        setPresets(prev => prev.filter(p => p.id !== id));
-        setIsDialogOpen(false);
+    const handleDeletePreset = async (id: string) => {
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/presets/${employeeId}/${id}/`,
+                { method: 'DELETE' }
+            );
+
+            if (!response.ok) throw new Error("プリセットの削除に失敗しました");
+
+            await fetchPresets();
+            setIsDialogOpen(false);
+            toast({
+                title: "成功",
+                description: "プリセットを削除しました",
+            });
+        } catch (err) {
+            toast({
+                title: "エラー",
+                description: err instanceof Error ? err.message : "エラーが発生しました",
+                variant: "destructive",
+            });
+        }
     };
 
     return (
@@ -120,7 +185,7 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect }: TimePresetD
                         新しい時間帯を追加
                     </Button>
 
-                    {/* プリセット一覧（スクロール可能） */}
+                    {/* プリセット一覧 */}
                     <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2">
                         {presets.map((preset) => (
                             <div
@@ -165,19 +230,7 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect }: TimePresetD
                         </DialogDescription>
                     </DialogHeader>
 
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.currentTarget);
-                            handleSavePreset({
-                                id: editingPreset?.id || '',
-                                name: formData.get('name') as string,
-                                startTime: formData.get('startTime') as string,
-                                endTime: formData.get('endTime') as string,
-                            });
-                        }}
-                        className="space-y-4"
-                    >
+                    <form onSubmit={handleSavePreset} className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">名前</label>
                             <Input
@@ -228,6 +281,7 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect }: TimePresetD
                                     type="button"
                                     variant="destructive"
                                     onClick={() => handleDeletePreset(editingPreset.id)}
+                                    disabled={isLoading}
                                 >
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     削除
@@ -238,11 +292,12 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect }: TimePresetD
                                     type="button"
                                     variant="outline"
                                     onClick={() => setIsDialogOpen(false)}
+                                    disabled={isLoading}
                                 >
                                     キャンセル
                                 </Button>
-                                <Button type="submit">
-                                    保存
+                                <Button type="submit" disabled={isLoading}>
+                                    {isLoading ? "保存中..." : "保存"}
                                 </Button>
                             </div>
                         </DialogFooter>

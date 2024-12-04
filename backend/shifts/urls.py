@@ -28,4 +28,12 @@ urlpatterns = [
      path('history/<int:employee_id>/update/',
           views.update_shift,
           name='update-shift'),
+
+     path('presets/<int:employee_id>/',
+         views.TimePresetView.as_view(),
+         name='timepreset-list'),
+
+     path('presets/<int:employee_id>/<int:preset_id>/',
+         views.TimePresetDetailView.as_view(),
+         name='timepreset-detail'),
 ]

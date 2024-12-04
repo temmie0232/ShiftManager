@@ -7,7 +7,16 @@ from .models import (
 class TimePresetSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimePreset
-        fields = ['id', 'name', 'start_time', 'end_time', 'color']
+        fields = ['id', 'name', 'start_time', 'end_time', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate(self, data):
+        """
+        開始時間が終了時間より後になっていないかチェック
+        """
+        if data['start_time'] >= data['end_time']:
+            raise serializers.ValidationError("開始時間は終了時間より前である必要があります")
+        return data
 
 class ShiftSubmissionStatusSerializer(serializers.ModelSerializer):
     class Meta:

@@ -351,6 +351,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                         <TimePresetDrawer
                             selectedPreset={selectedPreset}
                             onPresetSelect={setSelectedPreset}
+                            employeeId={employeeId}
                         />
 
                         <div className="space-y-6">

@@ -4,16 +4,16 @@ from accounts.models import Employee
 
 class TimePreset(models.Model):
     """時間帯のプリセット"""
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='time_presets')
     name = models.CharField(max_length=100)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    color = models.CharField(max_length=50, default='#a5d6a7')  # デフォルトの色を設定
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['created_at']
+        unique_together = ['employee', 'name']  # 同じ従業員の同じ名前のプリセットは作成できない
 
 class ShiftSubmissionStatus(models.Model):
     """シフト提出状況の管理"""
