@@ -32,7 +32,7 @@ export default function ShiftFormSendPage() {
                 },
                 body: JSON.stringify({
                     message,
-                    form_url: `${window.location.origin}/staff`,
+                    form_url: `${window.location.origin}/shift/submit`,
                 }),
             });
 
