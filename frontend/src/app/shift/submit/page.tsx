@@ -56,8 +56,9 @@ export default function ShiftSubmitPage() {
         setSelectedEmployee(employee);
 
         try {
-            // まずemployeeの情報を最新のものに更新
-            const response = await fetch(`/api/accounts/employees/${employee.id}/`);
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/accounts/employees/${employee.id}/`
+            );
             if (!response.ok) throw new Error("従業員情報の取得に失敗しました");
 
             const updatedEmployee = await response.json();
@@ -79,8 +80,8 @@ export default function ShiftSubmitPage() {
 
         try {
             const endpoint = passwordMode === "set"
-                ? `/api/accounts/employees/${selectedEmployee.id}/set-password/`
-                : `/api/accounts/employees/${selectedEmployee.id}/verify-password/`;
+                ? `${process.env.NEXT_PUBLIC_API_URL}/api/accounts/employees/${selectedEmployee.id}/set-password/`
+                : `${process.env.NEXT_PUBLIC_API_URL}/api/accounts/employees/${selectedEmployee.id}/verify-password/`;
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -104,7 +105,7 @@ export default function ShiftSubmitPage() {
             const month = nextMonth.getMonth() + 1;
 
             const statusResponse = await fetch(
-                `/api/shifts/draft/${selectedEmployee.id}/${year}/${month}/`
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/draft/${selectedEmployee.id}/${year}/${month}/`
             );
 
             if (!statusResponse.ok) {

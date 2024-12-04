@@ -54,7 +54,7 @@ export default function ManualShiftCreatePage() {
             const shiftsData = await Promise.all(
                 employees.map(async (emp: Employee) => {
                     const shiftResponse = await fetch(
-                        `/api/shifts/history/${emp.id}/?year=${year}&month=${month}`
+                        `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/history/${emp.id}/?year=${year}&month=${month}`
                     );
                     const shiftData = await shiftResponse.json();
                     return {
