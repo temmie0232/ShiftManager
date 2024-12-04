@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 # CORS設定
 CORS_ALLOWED_ORIGINS = [
-    "https://line-bot-front.vercel.app",
+    "https://doutor-py.vercel.app",
     "http://localhost:3000",
 ]
 
