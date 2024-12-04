@@ -28,14 +28,44 @@ SECRET_KEY = 'django-insecure-xp^@n0n8nm%p)2x!y0gm!bhru0usncxul4ha1-yi43s(bhr^*c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['yokohama-uwu.love', 'www.yokohama-uwu.love', 'localhost', '127.0.0.1']
 
-# 開発環境での設定
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Next.jsのデフォルトポート
+CSRF_TRUSTED_ORIGINS = [
+    "https://doutor-py.vercel.app",
+    "http://localhost:3000",
 ]
 
-# Application definition
+# CORS設定
+CORS_ALLOWED_ORIGINS = [
+    "https://line-bot-front.vercel.app",
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+
+
+CORS_ALLOW_CREDENTIALS = True
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -132,7 +162,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
