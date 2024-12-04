@@ -9,13 +9,10 @@ import HomeLink from "@/components/ui/HomeLink";
 import MainCard from "@/components/layout/MainCard";
 import ShiftSubmitButtons from "@/features/shift/submit/[id]/components/ShiftSubmitButtons";
 import { useRouter } from "next/navigation";
-import { use } from "react";
 import ConfirmationDialog from "@/features/shift/submit/[id]/components/ConfirmationDialog";
 import { toast } from "@/hooks/use-toast";
-import { CalendarDays, Check, Clock, HelpCircle, Plus } from "lucide-react";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Dialog } from "@radix-ui/react-dialog";
-import { DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { CalendarDays, Check, Clock, HelpCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 type ShiftData = {
@@ -38,9 +35,6 @@ type DraftData = {
     max_days_per_week?: number;
 };
 
-//export default function ShiftSubmitPage({ params }: { params: Promise<{ id: string }> }) {
-// const resolvedParams = use(params);
-// const employeeId = resolvedParams.id;
 export default function ShiftSubmitPage({ params }: { params: { id: string } }) {
     const employeeId = params.id;
     const router = useRouter();
@@ -63,19 +57,15 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
     const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
 
-    const carouselImages = [
-        { src: "/images/step1.png", alt: "ステップ1: 時間帯を作成 / 選択" },
-        { src: "/images/step2.png", alt: "ステップ2: カレンダーをクリック" },
-        { src: "/images/step3.png", alt: "ステップ3: 曜日をクリック" },
-    ];
-
     useEffect(() => {
         fetchDraftData();
     }, []);
 
     const fetchDraftData = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`);
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`
+            );
 
             if (!response.ok) {
                 if (response.status === 303) {
@@ -110,7 +100,11 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
 
     const handleDateSelect = (date: Date) => {
         if (!selectedPreset) {
-            alert("時間帯を先に選択してください");
+            toast({
+                title: "エラー",
+                description: "時間帯を先に選択してください",
+                variant: "destructive",
+            });
             return;
         }
 
@@ -118,16 +112,20 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
         setShiftData(prev => ({
             ...prev,
             [dateString]: {
-                startTime: selectedPreset.startTime,
-                endTime: selectedPreset.endTime,
-                color: '#a5d6a7'
+                startTime: selectedPreset.start_time,
+                endTime: selectedPreset.end_time,
+                color: selectedPreset.id === 'holiday' ? '#333333' : '#a5d6a7'
             }
         }));
     };
 
     const handleWeekdaySelect = (weekday: number) => {
         if (!selectedPreset) {
-            alert("時間帯を先に選択してください");
+            toast({
+                title: "エラー",
+                description: "時間帯を先に選択してください",
+                variant: "destructive",
+            });
             return;
         }
 
@@ -137,9 +135,9 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
             if (date.getMonth() === nextMonth.getMonth() && date.getDay() === weekday) {
                 const dateString = format(date, 'yyyy-MM-dd');
                 newShiftData[dateString] = {
-                    startTime: selectedPreset.startTime,
-                    endTime: selectedPreset.endTime,
-                    color: '#a5d6a7'
+                    startTime: selectedPreset.start_time,
+                    endTime: selectedPreset.end_time,
+                    color: selectedPreset.id === 'holiday' ? '#333333' : '#a5d6a7'
                 };
             }
         }
@@ -162,6 +160,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
             return;
         }
 
+        setError("");
         setIsConfirmDialogOpen(true);
     };
 
@@ -186,13 +185,16 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 shift_details: shift_details
             };
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shifts/submit/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestData),
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/submit/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData),
+                }
+            );
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -201,7 +203,8 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
 
             setSuccess(true);
             toast({
-                // @ts-ignore
+
+                //@ts-ignore
                 title: (
                     <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-500" />
@@ -238,28 +241,37 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 end_time: shift.endTime
             }));
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    shift_details: shifts,
-                    min_hours: monthlyPreference.minHours,
-                    max_hours: monthlyPreference.maxHours,
-                    min_days_per_week: monthlyPreference.minDaysPerWeek,
-                    max_days_per_week: monthlyPreference.maxDaysPerWeek,
-                }),
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        shift_details: shifts,
+                        min_hours: monthlyPreference.minHours,
+                        max_hours: monthlyPreference.maxHours,
+                        min_days_per_week: monthlyPreference.minDaysPerWeek,
+                        max_days_per_week: monthlyPreference.maxDaysPerWeek,
+                    }),
+                }
+            );
 
             if (!response.ok) {
                 throw new Error("一時保存に失敗しました");
             }
 
-            setSuccess(true);
-            setTimeout(() => setSuccess(false), 3000);
+            toast({
+                title: "成功",
+                description: "シフトを一時保存しました",
+            });
         } catch (err) {
-            setError(err instanceof Error ? err.message : "エラーが発生しました");
+            toast({
+                title: "エラー",
+                description: err instanceof Error ? err.message : "エラーが発生しました",
+                variant: "destructive",
+            });
         } finally {
             setDraftSaving(false);
         }
@@ -269,7 +281,6 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-2xl mx-auto space-y-8">
                 <HomeLink href="/shift/submit" text="従業員選択へ戻る" />
-
 
                 <MainCard
                     title="シフト希望提出"
@@ -337,8 +348,8 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                                     </div>
                                 </DialogContent>
                             </Dialog>
-
                         </div>
+
                         <CustomCalendar
                             selectedDates={selectedDates}
                             onDateSelect={handleDateSelect}
