@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "@/hooks/use-toast"; // toastをインポート
-import PDFUploader from "@/features/shift/send/components/PDFUploader";
+import { toast } from "@/hooks/use-toast";
+import PDFUploader from "@/components/ui/PDFUploader";
 
 export default function ShiftSendPage() {
     const [message, setMessage] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -13,8 +14,8 @@ export default function ShiftSendPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!e.currentTarget) {
-            setError("フォームデータの取得に失敗しました");
+        if (!selectedFile) {
+            setError("PDFファイルを選択してください");
             return;
         }
 
@@ -22,7 +23,9 @@ export default function ShiftSendPage() {
         setError("");
         setSuccess(false);
 
-        const formData = new FormData(e.currentTarget as HTMLFormElement);
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('message', message);
 
         try {
             const response = await fetch("http://localhost:8000/api/notifications/send-shift-notification/", {
@@ -36,6 +39,7 @@ export default function ShiftSendPage() {
 
             setSuccess(true);
             setMessage("");
+            setSelectedFile(null);
             toast({
                 title: "送信成功",
                 description: "通知の送信が完了しました",
@@ -63,6 +67,8 @@ export default function ShiftSendPage() {
             isLoading={isLoading}
             error={error}
             success={success}
+            selectedFile={selectedFile}
+            onFileSelect={setSelectedFile}
         />
     );
 }

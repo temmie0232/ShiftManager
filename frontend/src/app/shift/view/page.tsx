@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MainCard from "@/components/layout/MainCard";
 import HomeLink from "@/components/ui/HomeLink";
 import IndividualShiftsTab from "@/features/shift/view/IndividualShiftTab";
-import AllShiftsTab from "@/features/shift/view/AllShiftTab";
+import AllShiftsTab from "@/components/ui/AllShiftTab";
 
 export default function ShiftViewPage() {
     return (

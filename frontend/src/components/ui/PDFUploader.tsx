@@ -1,4 +1,3 @@
-// PDFUploader.tsx
 "use client";
 
 import React, { useState, useRef, ReactNode } from "react";
@@ -16,6 +15,8 @@ interface PDFUploaderProps {
     isLoading: boolean;
     error: string;
     success: boolean;
+    selectedFile: File | null;
+    onFileSelect: (file: File | null) => void;
 }
 
 export default function PDFUploader({
@@ -24,11 +25,12 @@ export default function PDFUploader({
     onSubmit,
     isLoading,
     error,
-    success
+    success,
+    selectedFile,
+    onFileSelect
 }: PDFUploaderProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -58,14 +60,14 @@ export default function PDFUploader({
 
     const handleFile = (file: File | null) => {
         if (file && file.type === "application/pdf") {
-            setSelectedFile(file);
+            onFileSelect(file);
         } else {
-            setSelectedFile(null);
+            onFileSelect(null);
         }
     };
 
     const handleRemoveFile = () => {
-        setSelectedFile(null);
+        onFileSelect(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
@@ -95,7 +97,7 @@ export default function PDFUploader({
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    id="pdf"
+                                    name="file"
                                     accept=".pdf"
                                     onChange={handleFileChange}
                                     className="hidden"
@@ -125,7 +127,7 @@ export default function PDFUploader({
                                     </div>
                                 ) : (
                                     <label
-                                        htmlFor="pdf"
+                                        htmlFor="file"
                                         className="flex flex-col items-center justify-center w-full h-full text-gray-500"
                                     >
                                         <Upload className={`w-8 h-8 mb-2 ${isDragging ? "text-blue-500" : "text-gray-500"}`} />
@@ -142,6 +144,7 @@ export default function PDFUploader({
                                 </label>
                                 <textarea
                                     id="message"
+                                    name="message"
                                     className="flex min-h-[160px] w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
                                     placeholder="PDFと一緒に送信するメッセージを入力してください"
                                     value={message}
