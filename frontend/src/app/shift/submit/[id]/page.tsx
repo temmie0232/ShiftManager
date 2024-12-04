@@ -75,7 +75,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
 
     const fetchDraftData = async () => {
         try {
-            const response = await fetch(`http://localhost:8000/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`);
+            const response = await fetch(`/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`);
 
             if (!response.ok) {
                 if (response.status === 303) {
@@ -186,7 +186,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 shift_details: shift_details
             };
 
-            const response = await fetch(`http://localhost:8000/api/shifts/submit/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
+            const response = await fetch(`/api/shifts/submit/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -238,7 +238,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 end_time: shift.endTime
             }));
 
-            const response = await fetch(`http://localhost:8000/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
+            const response = await fetch(`/api/shifts/draft/${employeeId}/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

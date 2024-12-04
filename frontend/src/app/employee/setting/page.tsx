@@ -57,7 +57,7 @@ export default function EmployeeSettingPage() {
         setError("");
 
         try {
-            const response = await fetch("http://localhost:8000/api/accounts/employees/");
+            const response = await fetch("/api/accounts/employees/");
             if (!response.ok) {
                 throw new Error("従業員データの取得に失敗しました");
             }
@@ -97,8 +97,8 @@ export default function EmployeeSettingPage() {
 
         try {
             const url = editingEmployee
-                ? `http://localhost:8000/api/accounts/employees/${editingEmployee.id}/`
-                : "http://localhost:8000/api/accounts/employees/";
+                ? `/api/accounts/employees/${editingEmployee.id}/`
+                : "/api/accounts/employees/";
 
             const method = editingEmployee ? "PUT" : "POST";
 
@@ -117,7 +117,7 @@ export default function EmployeeSettingPage() {
 
             // パスワードが入力されている場合、パスワード設定APIを呼び出す
             if (password) {
-                const passwordUrl = `http://localhost:8000/api/accounts/employees/${editingEmployee?.id || savedEmployee.id}/set-password/`;
+                const passwordUrl = `/api/accounts/employees/${editingEmployee?.id || savedEmployee.id}/set-password/`;
                 const passwordResponse = await fetch(passwordUrl, {
                     method: "POST",
                     headers: {
@@ -153,7 +153,7 @@ export default function EmployeeSettingPage() {
 
         try {
             const response = await fetch(
-                `http://localhost:8000/api/accounts/employees/${editingEmployee.id}/`,
+                `/api/accounts/employees/${editingEmployee.id}/`,
                 {
                     method: "DELETE",
                 }

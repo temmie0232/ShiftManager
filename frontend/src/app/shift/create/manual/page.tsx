@@ -45,7 +45,7 @@ export default function ManualShiftCreatePage() {
     const fetchShiftData = async () => {
         setIsLoading(true);
         try {
-            const empResponse = await fetch("http://localhost:8000/api/accounts/employees/");
+            const empResponse = await fetch("/api/accounts/employees/");
             const employees = await empResponse.json();
 
             const year = nextMonth.getFullYear();
@@ -54,7 +54,7 @@ export default function ManualShiftCreatePage() {
             const shiftsData = await Promise.all(
                 employees.map(async (emp: Employee) => {
                     const shiftResponse = await fetch(
-                        `http://localhost:8000/api/shifts/history/${emp.id}/?year=${year}&month=${month}`
+                        `/api/shifts/history/${emp.id}/?year=${year}&month=${month}`
                     );
                     const shiftData = await shiftResponse.json();
                     return {

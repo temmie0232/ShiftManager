@@ -39,7 +39,7 @@ export default function ShiftSubmitPage() {
         setError("");
 
         try {
-            const response = await fetch("http://localhost:8000/api/accounts/employees/");
+            const response = await fetch("/api/accounts/employees/");
             if (!response.ok) {
                 throw new Error("従業員データの取得に失敗しました");
             }
@@ -57,7 +57,7 @@ export default function ShiftSubmitPage() {
 
         try {
             // まずemployeeの情報を最新のものに更新
-            const response = await fetch(`http://localhost:8000/api/accounts/employees/${employee.id}/`);
+            const response = await fetch(`/api/accounts/employees/${employee.id}/`);
             if (!response.ok) throw new Error("従業員情報の取得に失敗しました");
 
             const updatedEmployee = await response.json();
@@ -79,8 +79,8 @@ export default function ShiftSubmitPage() {
 
         try {
             const endpoint = passwordMode === "set"
-                ? `http://localhost:8000/api/accounts/employees/${selectedEmployee.id}/set-password/`
-                : `http://localhost:8000/api/accounts/employees/${selectedEmployee.id}/verify-password/`;
+                ? `/api/accounts/employees/${selectedEmployee.id}/set-password/`
+                : `/api/accounts/employees/${selectedEmployee.id}/verify-password/`;
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -104,7 +104,7 @@ export default function ShiftSubmitPage() {
             const month = nextMonth.getMonth() + 1;
 
             const statusResponse = await fetch(
-                `http://localhost:8000/api/shifts/draft/${selectedEmployee.id}/${year}/${month}/`
+                `/api/shifts/draft/${selectedEmployee.id}/${year}/${month}/`
             );
 
             if (!statusResponse.ok) {

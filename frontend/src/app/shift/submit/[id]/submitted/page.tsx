@@ -62,7 +62,7 @@ export default function ShiftSubmittedPage({ params }: { params: { id: string } 
             const month = nextMonth.getMonth() + 1;
 
             const response = await fetch(
-                `http://localhost:8000/api/shifts/history/${employeeId}/?year=${year}&month=${month}`
+                `/api/shifts/history/${employeeId}/?year=${year}&month=${month}`
             );
 
             if (!response.ok) {
