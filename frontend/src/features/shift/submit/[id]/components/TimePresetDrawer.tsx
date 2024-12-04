@@ -9,9 +9,11 @@ import { toast } from "@/hooks/use-toast";
 export type TimePreset = {
     id: string;
     name: string;
-    startTime: string;
-    endTime: string;
+    start_time: string;
+    end_time: string;
     isFixed?: boolean;
+    created_at?: string;
+    updated_at?: string;
 }
 
 interface TimePresetDrawerProps {
@@ -24,8 +26,8 @@ interface TimePresetDrawerProps {
 const HOLIDAY_PRESET: TimePreset = {
     id: 'holiday',
     name: '休み',
-    startTime: '00:00',
-    endTime: '00:00',
+    start_time: '00:00',
+    end_time: '00:00',
     isFixed: true,
 };
 
@@ -45,12 +47,16 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
 
     // プリセットの取得
     useEffect(() => {
-        fetchPresets();
+        if (employeeId) {
+            fetchPresets();
+        }
     }, [employeeId]);
 
     const fetchPresets = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shifts/presets/${employeeId}/`);
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/presets/${employeeId}/`
+            );
             if (!response.ok) throw new Error("プリセットの取得に失敗しました");
             const data = await response.json();
             setPresets(data);
@@ -65,18 +71,22 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
     };
 
     const handlePresetSelect = (preset: TimePreset) => {
-        onPresetSelect(preset);
-        setIsOpen(false);  // ドロワーを閉じる
+        // APIのレスポンスに合わせてキー名を変更
+        const formattedPreset = {
+            ...preset,
+            startTime: preset.start_time,
+            endTime: preset.end_time,
+        };
+        onPresetSelect(formattedPreset);
+        setIsOpen(false);
     };
 
-    // 選択中のプリセットの表示テキストを生成
     const getSelectedPresetText = () => {
         if (!selectedPreset) return "時間帯を選択";
         if (selectedPreset.id === 'holiday') return "選択中 - 休み";
-        return `選択中 - ${selectedPreset.startTime}~${selectedPreset.endTime}`;
+        return `選択中 - ${selectedPreset.start_time}~${selectedPreset.end_time}`;
     };
 
-    // プリセットの追加・編集
     const handleSavePreset = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
@@ -84,8 +94,8 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
         const formData = new FormData(e.currentTarget);
         const presetData = {
             name: formData.get('name') as string,
-            startTime: formData.get('startTime') as string,
-            endTime: formData.get('endTime') as string,
+            start_time: formData.get('startTime') as string,
+            end_time: formData.get('endTime') as string,
         };
 
         try {
@@ -99,7 +109,10 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
                 body: JSON.stringify(presetData),
             });
 
-            if (!response.ok) throw new Error("プリセットの保存に失敗しました");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || "プリセットの保存に失敗しました");
+            }
 
             await fetchPresets();
             setIsDialogOpen(false);
@@ -118,7 +131,6 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
         }
     };
 
-    // プリセットの削除
     const handleDeletePreset = async (id: string) => {
         try {
             const response = await fetch(
@@ -198,7 +210,7 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
                                 >
                                     <div className="font-medium">{preset.name}</div>
                                     <div className="text-sm text-gray-500">
-                                        {preset.startTime} ~ {preset.endTime}
+                                        {preset.start_time.slice(0, 5)} ~ {preset.end_time.slice(0, 5)}
                                     </div>
                                 </button>
                                 <Button
@@ -246,7 +258,7 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
                                 <select
                                     name="startTime"
                                     className="w-full px-3 py-2 border rounded-md bg-white"
-                                    defaultValue={editingPreset?.startTime}
+                                    defaultValue={editingPreset?.start_time}
                                     required
                                     size={6}
                                 >
@@ -262,7 +274,7 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
                                 <select
                                     name="endTime"
                                     className="w-full px-3 py-2 border rounded-md bg-white"
-                                    defaultValue={editingPreset?.endTime}
+                                    defaultValue={editingPreset?.end_time}
                                     required
                                     size={6}
                                 >
@@ -297,7 +309,14 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
                                     キャンセル
                                 </Button>
                                 <Button type="submit" disabled={isLoading}>
-                                    {isLoading ? "保存中..." : "保存"}
+                                    {isLoading ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                            保存中...
+                                        </div>
+                                    ) : (
+                                        "保存"
+                                    )}
                                 </Button>
                             </div>
                         </DialogFooter>
