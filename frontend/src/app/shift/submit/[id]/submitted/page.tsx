@@ -34,9 +34,12 @@ type CalendarShiftData = {
     };
 };
 
-export default function SubmittedPage({ params }: { params: Promise<{ id: string }> }) {
-    const resolvedParams = use(params);
-    const employeeId = resolvedParams.id;
+// export default function SubmittedPage({ params }: { params: Promise<{ id: string }> }) {
+// const resolvedParams = use(params);
+// const employeeId = resolvedParams.id;
+
+export default function ShiftSubmittedPage({ params }: { params: { id: string } }) {
+    const employeeId = params.id;
 
     const [shiftData, setShiftData] = useState<ShiftData | null>(null);
     const [calendarData, setCalendarData] = useState<CalendarShiftData>({});

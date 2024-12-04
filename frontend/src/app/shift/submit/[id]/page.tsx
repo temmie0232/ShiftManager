@@ -38,9 +38,11 @@ type DraftData = {
     max_days_per_week?: number;
 };
 
-export default function ShiftSubmitPage({ params }: { params: Promise<{ id: string }> }) {
-    const resolvedParams = use(params);
-    const employeeId = resolvedParams.id;
+//export default function ShiftSubmitPage({ params }: { params: Promise<{ id: string }> }) {
+// const resolvedParams = use(params);
+// const employeeId = resolvedParams.id;
+export default function ShiftSubmitPage({ params }: { params: { id: string } }) {
+    const employeeId = params.id;
     const router = useRouter();
 
     const nextMonth = addMonths(startOfMonth(new Date()), 1);

@@ -34,9 +34,13 @@ type CalendarShiftData = {
     };
 };
 
-export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const resolvedParams = use(params);
-    const employeeId = resolvedParams.id;
+// export default function ShiftViewDetailPage({ params }: { params: Promise<{ id: string }> }) {
+// const resolvedParams = use(params);
+// const employeeId = resolvedParams.id;
+
+export default function ShiftViewDetailPage({ params }: { params: { id: string } }) {
+    const employeeId = params.id;
+
     const nextMonth = addMonths(startOfMonth(new Date()), 1);
     const { toast } = useToast();
 
