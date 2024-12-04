@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useRef, ReactNode } from "react";
 import { Upload, FileText, X } from "lucide-react";
 import { CardContent, CardFooter } from "@/components/ui/card";
@@ -86,7 +84,7 @@ export default function PDFUploader({
                     <form onSubmit={onSubmit}>
                         <CardContent>
                             <div
-                                className={`relative flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer
+                                className={`relative flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg
                                     ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}
                                     ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
                                 `}
@@ -103,40 +101,49 @@ export default function PDFUploader({
                                     className="hidden"
                                     disabled={isLoading}
                                 />
-                                {selectedFile ? (
-                                    <div className="w-full p-4 border-2 border-gray-300 rounded-lg bg-white">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-3">
-                                                <FileText className="w-8 h-8 text-blue-500" />
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
-                                                    <p className="text-xs text-gray-500">
-                                                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                                                    </p>
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full h-full cursor-pointer"
+                                >
+                                    {selectedFile ? (
+                                        <div className="w-full p-4 border-2 border-gray-300 rounded-lg bg-white">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center space-x-3">
+                                                    <FileText className="w-8 h-8 text-blue-500" />
+                                                    <div>
+                                                        <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
+                                                        <p className="text-xs text-gray-500">
+                                                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                                                        </p>
+                                                    </div>
                                                 </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRemoveFile();
+                                                    }}
+                                                    className="p-1 rounded-full hover:bg-gray-100"
+                                                    disabled={isLoading}
+                                                >
+                                                    <X className="w-5 h-5 text-gray-500" />
+                                                </button>
                                             </div>
-                                            <button
-                                                type="button"
-                                                onClick={handleRemoveFile}
-                                                className="p-1 rounded-full hover:bg-gray-100"
-                                                disabled={isLoading}
-                                            >
-                                                <X className="w-5 h-5 text-gray-500" />
-                                            </button>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <label
-                                        htmlFor="file"
-                                        className="flex flex-col items-center justify-center w-full h-full text-gray-500"
-                                    >
-                                        <Upload className={`w-8 h-8 mb-2 ${isDragging ? "text-blue-500" : "text-gray-500"}`} />
-                                        <p className="text-sm">クリックまたはドラッグ＆ドロップでPDFファイルを選択</p>
-                                    </label>
-                                )}
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center w-full h-full text-gray-500">
+                                            <Upload className={`w-8 h-8 mb-2 ${isDragging ? "text-blue-500" : "text-gray-500"}`} />
+                                            <p className="text-sm">クリックまたはドラッグ＆ドロップでPDFファイルを選択</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            {error && <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md mt-2">{error}</div>}
+                            {error &&
+                                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md mt-2">
+                                    {error}
+                                </div>
+                            }
 
                             <div className="space-y-4 mt-6">
                                 <label htmlFor="message" className="text-sm font-medium text-gray-700">
