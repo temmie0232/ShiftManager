@@ -3,7 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "ShiftManager",
+  title: "シフト管理",
   description: "シフト管理アプリ",
 };
 
