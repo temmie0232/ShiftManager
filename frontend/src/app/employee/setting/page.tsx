@@ -57,7 +57,7 @@ export default function EmployeeSettingPage() {
         setError("");
 
         try {
-            const response = await fetch("https://yokohama-uwu.love/api/accounts/employees/");
+            const response = await fetch("/api/accounts/employees/");
             if (!response.ok) {
                 throw new Error("従業員データの取得に失敗しました");
             }
