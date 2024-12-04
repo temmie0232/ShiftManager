@@ -39,7 +39,7 @@ export default function ShiftSubmitPage() {
         setError("");
 
         try {
-            const response = await fetch("/api/accounts/employees/");
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/accounts/employees/`);
             if (!response.ok) {
                 throw new Error("従業員データの取得に失敗しました");
             }

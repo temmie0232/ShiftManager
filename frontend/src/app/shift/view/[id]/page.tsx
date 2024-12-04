@@ -64,7 +64,7 @@ export default function ShiftViewDetailPage({ params }: { params: { id: string }
 
     const fetchEmployeeName = async () => {
         try {
-            const response = await fetch(`/api/accounts/employees/${employeeId}/`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/accounts/employees/${employeeId}/`);
             const data = await response.json();
             setEmployeeName(data.name);
         } catch (err) {
@@ -81,7 +81,7 @@ export default function ShiftViewDetailPage({ params }: { params: { id: string }
             const month = nextMonth.getMonth() + 1;
 
             const response = await fetch(
-                `/api/shifts/history/${employeeId}/?year=${year}&month=${month}`
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/history/${employeeId}/?year=${year}&month=${month}`
             );
 
             if (!response.ok) {
@@ -125,7 +125,7 @@ export default function ShiftViewDetailPage({ params }: { params: { id: string }
             const month = nextMonth.getMonth() + 1;
 
             const response = await fetch(
-                `/api/shifts/history/${employeeId}/update/`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/history/${employeeId}/update/`,
                 {
                     method: 'PUT',
                     headers: {

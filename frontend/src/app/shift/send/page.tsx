@@ -28,7 +28,7 @@ export default function ShiftSendPage() {
         formData.append('message', message);
 
         try {
-            const response = await fetch("/api/notifications/send-shift-notification/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/send-shift-notification/`, {
                 method: "POST",
                 body: formData,
             });

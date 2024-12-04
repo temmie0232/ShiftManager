@@ -25,7 +25,7 @@ export default function ShiftFormSendPage() {
         setSuccess(false);
 
         try {
-            const response = await fetch("/api/notifications/send-shift-form/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/send-shift-form/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

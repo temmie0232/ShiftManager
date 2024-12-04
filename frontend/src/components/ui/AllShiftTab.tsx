@@ -35,7 +35,7 @@ export default function AllShiftsTab() {
         setError("");
 
         try {
-            const empResponse = await fetch("http://localhost:8000/api/accounts/employees/");
+            const empResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/accounts/employees/`);
             const employees = await empResponse.json();
 
             const year = nextMonth.getFullYear();
@@ -44,7 +44,7 @@ export default function AllShiftsTab() {
 
             for (const emp of employees) {
                 const statusResponse = await fetch(
-                    `http://localhost:8000/api/shifts/draft/${emp.id}/${year}/${month}/`
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/draft/${emp.id}/${year}/${month}/`
                 );
                 const statusData = await statusResponse.json();
                 const isSubmitted = statusData.submitted;
@@ -52,7 +52,7 @@ export default function AllShiftsTab() {
                 let shifts = {};
                 if (isSubmitted) {
                     const shiftResponse = await fetch(
-                        `http://localhost:8000/api/shifts/history/${emp.id}/?year=${year}&month=${month}`
+                        `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/history/${emp.id}/?year=${year}&month=${month}`
                     );
                     const shiftData = await shiftResponse.json();
 

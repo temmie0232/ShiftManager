@@ -21,7 +21,7 @@ export default function IndividualShiftsTab() {
         setIsLoading(true);
         setError("");
         try {
-            const empResponse = await fetch("http://localhost:8000/api/accounts/employees/");
+            const empResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/accounts/employees/`);
             if (!empResponse.ok) throw new Error("従業員データの取得に失敗しました");
             const empData = await empResponse.json();
             setEmployees(empData);
@@ -34,7 +34,7 @@ export default function IndividualShiftsTab() {
             const statuses: SubmissionStatus = {};
             for (const emp of empData) {
                 const statusResponse = await fetch(
-                    `http://localhost:8000/api/shifts/draft/${emp.id}/${year}/${month}/`
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/draft/${emp.id}/${year}/${month}/`
                 );
                 const statusData = await statusResponse.json();
                 statuses[emp.id] = statusData.submitted || false;

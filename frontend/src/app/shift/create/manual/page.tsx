@@ -45,7 +45,7 @@ export default function ManualShiftCreatePage() {
     const fetchShiftData = async () => {
         setIsLoading(true);
         try {
-            const empResponse = await fetch("/api/accounts/employees/");
+            const empResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/accounts/employees/`);
             const employees = await empResponse.json();
 
             const year = nextMonth.getFullYear();
