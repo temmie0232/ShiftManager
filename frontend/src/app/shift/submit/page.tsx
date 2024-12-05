@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
-import MainCard from "@/components/layout/MainCard";
 import { useRouter } from "next/navigation";
 import PasswordDialog from "@/components/ui/PasswordDialog";
 
@@ -127,58 +125,52 @@ export default function ShiftSubmitPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-            <div className="max-w-2xl mx-auto space-y-8">
-                <MainCard
-                    icon={<Users className="w-6 h-6 text-gray-600" />}
-                    title="シフトの提出"
-                    description="あなたの名前を選択してください。"
-                >
-                    <CardContent>
-                        <div className="space-y-4">
-                            {/* エラーメッセージ */}
-                            {error && (
-                                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                                    {error}
-                                </div>
-                            )}
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="p-4 space-y-6 w-2/3 mx-auto">
+                <div className="flex items-center space-x-3">
+                    <Users className="w-6 h-6 text-gray-600" />
+                    <div>
+                        <h1 className="text-2xl font-bold mt-6">シフトの提出</h1>
+                        <p className="text-gray-600 text-sm">あなたの名前を選択してください</p>
+                    </div>
+                </div>
 
-                            {/* ローディング表示 */}
-                            {isLoading && (
-                                <div className="text-center py-4">
-                                    <div className="inline-block w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-                                    <p className="mt-2 text-sm text-gray-600">読み込み中...</p>
-                                </div>
-                            )}
+                <div className="space-y-4">
+                    {error && (
+                        <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                            {error}
+                        </div>
+                    )}
 
-                            {/* 従業員一覧 */}
-                            {!isLoading && (
-                                <div className="space-y-3">
-                                    {employees.map((employee) => (
-                                        <Button
-                                            key={employee.id}
-                                            variant="outline"
-                                            className="w-full justify-start text-left font-normal hover:bg-gray-100"
-                                            onClick={() => handleEmployeeClick(employee)}
-                                            disabled={isLoading}
-                                        >
-                                            {employee.name}
-                                        </Button>
-                                    ))}
+                    {isLoading ? (
+                        <div className="text-center py-4">
+                            <div className="inline-block w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                            <p className="mt-2 text-sm text-gray-600">読み込み中...</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {employees.map((employee) => (
+                                <Button
+                                    key={employee.id}
+                                    variant="outline"
+                                    className="w-full justify-start text-left font-medium hover:bg-gray-100 p-6 text-lg"
+                                    onClick={() => handleEmployeeClick(employee)}
+                                    disabled={isLoading}
+                                >
+                                    {employee.name}
+                                </Button>
+                            ))}
 
-                                    {employees.length === 0 && !error && (
-                                        <p className="text-center text-sm text-gray-500 py-4">
-                                            従業員が登録されていません
-                                        </p>
-                                    )}
-                                </div>
+                            {employees.length === 0 && !error && (
+                                <p className="text-center text-sm text-gray-500 py-4">
+                                    従業員が登録されていません
+                                </p>
                             )}
                         </div>
-                    </CardContent>
-                </MainCard>
+                    )}
+                </div>
             </div>
 
-            {/* パスワードダイアログ */}
             <PasswordDialog
                 isOpen={isPasswordDialogOpen}
                 onClose={() => setIsPasswordDialogOpen(false)}
