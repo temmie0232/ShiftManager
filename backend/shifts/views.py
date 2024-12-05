@@ -231,3 +231,25 @@ def update_shift(request, employee_id):
             {'error': str(e)},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+@api_view(['POST'])
+def reset_shift(request, employee_id):
+    try:
+        # 対象の従業員を取得
+        employee = get_object_or_404(Employee, id=employee_id)
+        
+        # シフトリクエストを削除
+        ShiftRequest.objects.filter(employee=employee).delete()
+        
+        # 下書きシフトを削除
+        DraftShiftRequest.objects.filter(employee=employee).delete()
+        
+        # 提出状況をリセット
+        ShiftSubmissionStatus.objects.filter(employee=employee).delete()
+        
+        return Response({"message": "シフトをリセットしました"})
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )

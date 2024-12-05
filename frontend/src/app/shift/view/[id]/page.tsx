@@ -10,6 +10,8 @@ import { use } from 'react';
 import { Calendar, Check } from "lucide-react";
 import ShiftEditDialog, { ShiftEditData } from '@/features/shift/view/[id]/components/ShiftEditDialog';
 import { useToast } from "@/hooks/use-toast";
+import { Button } from '@/components/ui/button';
+import ResetConfirmationDialog from '@/features/shift/view/[id]/components/ResetConfirmationDialog';
 
 type ShiftData = {
     year: number;
@@ -49,6 +51,9 @@ export default function ShiftViewDetailPage({ params }: { params: { id: string }
     const [calendarData, setCalendarData] = useState<CalendarShiftData>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+    const [isResetting, setIsResetting] = useState(false);
 
     // Dialog states
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -113,6 +118,39 @@ export default function ShiftViewDetailPage({ params }: { params: { id: string }
     const handleDateSelect = (date: Date) => {
         setSelectedDate(date);
         setIsEditDialogOpen(true);
+    };
+
+    const handleReset = async () => {
+        setIsResetting(true);
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/shifts/history/${employeeId}/reset/`,
+                {
+                    method: 'POST',
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("シフトのリセットに失敗しました");
+            }
+
+            toast({
+                title: "リセット完了",
+                description: "シフトがリセットされました",
+                duration: 3000,
+            });
+
+        } catch (err) {
+            toast({
+                title: "エラー",
+                description: err instanceof Error ? err.message : "エラーが発生しました",
+                variant: "destructive",
+                duration: 3000
+            });
+        } finally {
+            setIsResetting(false);
+            setIsResetDialogOpen(false);
+        }
     };
 
     const handleShiftSave = async (shiftData: ShiftEditData) => {
@@ -249,6 +287,23 @@ export default function ShiftViewDetailPage({ params }: { params: { id: string }
                     }
                 />
             )}
+            <div className="mt-4 pt-4 flex justify-center">
+                <Button
+                    variant="destructive"
+                    onClick={() => setIsResetDialogOpen(true)}
+                    className="w-48px"
+                >
+                    シフトをリセット
+                </Button>
+            </div>
+
+            <ResetConfirmationDialog
+                isOpen={isResetDialogOpen}
+                onClose={() => setIsResetDialogOpen(false)}
+                onConfirm={handleReset}
+                isLoading={isResetting}
+                employeeName={employeeName}
+            />
         </div>
     );
 }

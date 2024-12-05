@@ -36,4 +36,8 @@ urlpatterns = [
      path('presets/<int:employee_id>/<int:preset_id>/',
          views.TimePresetDetailView.as_view(),
          name='timepreset-detail'),
+
+     path('history/<int:employee_id>/reset/',
+          views.reset_shift,
+          name='reset-shift'),
 ]
