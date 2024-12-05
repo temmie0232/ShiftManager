@@ -120,7 +120,7 @@ export default function ShiftSubmittedPage({ params }: { params: { id: string } 
                         <>
                             <div className="bg-white p-4 rounded-lg space-y-3">
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-gray-600">希望労働時間</span>
+                                    <span className="text-sm text-gray-600">月の希望労働時間</span>
                                     <span className="font-medium">
                                         {shiftData.min_hours}～{shiftData.max_hours}時間
                                     </span>

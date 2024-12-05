@@ -283,7 +283,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                 <div className="space-y-4">
 
 
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         <CustomCalendar
                             selectedDates={selectedDates}
                             onDateSelect={handleDateSelect}
@@ -361,8 +361,10 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                             </DialogContent>
                         </Dialog>
 
+
                         <div className="space-y-6">
                             <div className="space-y-2">
+                                <div className="h-px bg-gray-200 my-4" />
                                 <label className="text-sm font-medium">月の労働時間 (希望)</label>
                                 <div className="flex items-center gap-2">
                                     <input
@@ -417,6 +419,7 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                                     <span className="text-sm text-gray-500">日</span>
                                 </div>
                             </div>
+                            <div className="h-px bg-gray-200 mt-6" />
                         </div>
 
                         {error && (
