@@ -299,6 +299,68 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                             employeeId={employeeId}
                         />
 
+                        <Dialog open={isHelpDialogOpen} onOpenChange={setIsHelpDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button className="w-full">
+                                    <HelpCircle className="h-4 w-4 mr-2" />
+                                    使い方
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-h-[90vh] overflow-y-auto">
+                                <div className="space-y-4">
+                                    <h2 className="text-lg font-semibold">シフトの入れ方</h2>
+
+                                    {/* ステップ1 */}
+                                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                                        <div className="flex items-center text-base font-medium text-gray-900">
+                                            <Clock className="h-5 w-5 mr-2 text-blue-500" />
+                                            <h3>Step 1: 時間帯を準備する</h3>
+                                        </div>
+                                        <div className="ml-7 space-y-1 text-sm text-gray-600">
+                                            <p>① 「時間帯を選択」ボタンをクリック</p>
+                                            <p>② 「新しい時間帯を追加」を選択</p>
+                                            <p>③ 名前と時間を設定して保存</p>
+                                        </div>
+                                    </div>
+
+                                    {/* ステップ2 */}
+                                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                                        <div className="flex items-center text-base font-medium text-gray-900">
+                                            <CalendarDays className="h-5 w-5 mr-2 text-blue-500" />
+                                            <h3>Step 2: カレンダーに入れる</h3>
+                                        </div>
+                                        <div className="ml-7 space-y-1 text-sm text-gray-600">
+                                            <p>作成した時間帯を選んで...</p>
+                                            <p>• 1日だけ: 日付をクリック</p>
+                                            <p>• 毎週同じ曜日: 曜日名(月)などをクリック</p>
+                                        </div>
+                                    </div>
+
+                                    {/* 具体例 */}
+                                    <div className="border-t pt-4">
+                                        <p className="font-medium mb-2">例: 毎週土曜日 13:00-22:00 で働きたい場合</p>
+                                        <div className="bg-blue-50 p-3 rounded text-sm space-y-2">
+                                            <div className="flex items-center">
+                                                <span className="bg-blue-100 px-2 py-1 rounded mr-2">手順1</span>
+                                                <p>新しい時間帯を追加</p>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="bg-blue-100 px-2 py-1 rounded mr-2">手順2</span>
+                                                <div>
+                                                    <p>名前:「土曜シフト」</p>
+                                                    <p>時間: 13:00-22:00</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="bg-blue-100 px-2 py-1 rounded mr-2">手順3</span>
+                                                <p>カレンダーの「土」をクリック</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">月の労働時間 (希望)</label>
@@ -376,69 +438,8 @@ export default function ShiftSubmitPage({ params }: { params: { id: string } }) 
                             draftSaving={draftSaving}
                         />
 
-                        <div className="h-px bg-gray-200" /> {/* Divider */}
 
-                        <Dialog open={isHelpDialogOpen} onOpenChange={setIsHelpDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="w-full">
-                                    <HelpCircle className="h-4 w-4 mr-2" />
-                                    使い方
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <div className="space-y-6">
-                                    <h2 className="text-lg font-semibold">シフトの入れ方</h2>
 
-                                    {/* ステップ1 */}
-                                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                                        <div className="flex items-center text-base font-medium text-gray-900">
-                                            <Clock className="h-5 w-5 mr-2 text-blue-500" />
-                                            <h3>Step 1: 時間帯を準備する</h3>
-                                        </div>
-                                        <div className="ml-7 space-y-1 text-sm text-gray-600">
-                                            <p>① 「時間帯を選択」ボタンをクリック</p>
-                                            <p>② 「新しい時間帯を追加」を選択</p>
-                                            <p>③ 名前と時間を設定して保存</p>
-                                        </div>
-                                    </div>
-
-                                    {/* ステップ2 */}
-                                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                                        <div className="flex items-center text-base font-medium text-gray-900">
-                                            <CalendarDays className="h-5 w-5 mr-2 text-blue-500" />
-                                            <h3>Step 2: カレンダーに入れる</h3>
-                                        </div>
-                                        <div className="ml-7 space-y-1 text-sm text-gray-600">
-                                            <p>作成した時間帯を選んで...</p>
-                                            <p>• 1日だけ: 日付をクリック</p>
-                                            <p>• 毎週同じ曜日: 曜日名(月)などをクリック</p>
-                                        </div>
-                                    </div>
-
-                                    {/* 具体例 */}
-                                    <div className="border-t pt-4">
-                                        <p className="font-medium mb-2">例: 毎週土曜日 13:00-22:00 で働きたい場合</p>
-                                        <div className="bg-blue-50 p-3 rounded text-sm space-y-2">
-                                            <div className="flex items-center">
-                                                <span className="bg-blue-100 px-2 py-1 rounded mr-2">手順1</span>
-                                                <p>新しい時間帯を追加</p>
-                                            </div>
-                                            <div className="flex items-center">
-                                                <span className="bg-blue-100 px-2 py-1 rounded mr-2">手順2</span>
-                                                <div>
-                                                    <p>名前:「土曜シフト」</p>
-                                                    <p>時間: 13:00-22:00</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center">
-                                                <span className="bg-blue-100 px-2 py-1 rounded mr-2">手順3</span>
-                                                <p>カレンダーの「土」をクリック</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
                     </div>
                 </div>
             </div>

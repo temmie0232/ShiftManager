@@ -232,7 +232,7 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
 
             {/* 編集ダイアログ */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent>
+                <DialogContent className="max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>
                             {editingPreset ? '時間帯を編集' : '新しい時間帯を追加'}
@@ -323,6 +323,6 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
                     </form>
                 </DialogContent>
             </Dialog>
-        </Drawer>
+        </Drawer >
     );
 }
