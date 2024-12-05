@@ -84,7 +84,10 @@ export function TimePresetDrawer({ selectedPreset, onPresetSelect, employeeId }:
     const getSelectedPresetText = () => {
         if (!selectedPreset) return "時間帯を選択";
         if (selectedPreset.id === 'holiday') return "選択中 - 休み";
-        return `選択中 - ${selectedPreset.start_time}~${selectedPreset.end_time}`;
+        // 時間文字列から秒数を削除
+        const startTime = selectedPreset.start_time.slice(0, 5);
+        const endTime = selectedPreset.end_time.slice(0, 5);
+        return `選択中 - ${startTime}~${endTime}`;
     };
 
     const handleSavePreset = async (e: React.FormEvent<HTMLFormElement>) => {

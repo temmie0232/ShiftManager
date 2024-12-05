@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface PasswordDialogProps {
     isOpen: boolean;
@@ -21,10 +22,16 @@ export default function PasswordDialog({
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isConfirmed, setIsConfirmed] = useState(false);
 
     const handleSubmit = async () => {
         if (!password || !/^\d{4}$/.test(password)) {
             setError("4桁の数字を入力してください");
+            return;
+        }
+
+        if (!isConfirmed) {
+            setError("本人確認のチェックボックスにチェックを入れてください");
             return;
         }
 
@@ -40,8 +47,15 @@ export default function PasswordDialog({
         }
     };
 
+    const handleClose = () => {
+        setPassword("");
+        setError("");
+        setIsConfirmed(false);
+        onClose();
+    };
+
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent>
                 <DialogTitle>
                     {mode === "set" ? "誕生日を設定" : "誕生日を入力"}
@@ -66,6 +80,20 @@ export default function PasswordDialog({
                         maxLength={4}
                     />
 
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="identity-confirm"
+                            checked={isConfirmed}
+                            onCheckedChange={(checked) => setIsConfirmed(checked as boolean)}
+                        />
+                        <label
+                            htmlFor="identity-confirm"
+                            className="text-sm font-medium leading-none text-red-600 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            あなたは{employeeName}さんで間違いありませんか？
+                        </label>
+                    </div>
+
                     {error && (
                         <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
                             {error}
@@ -73,10 +101,13 @@ export default function PasswordDialog({
                     )}
 
                     <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={onClose} disabled={isLoading}>
+                        <Button variant="outline" onClick={handleClose} disabled={isLoading}>
                             キャンセル
                         </Button>
-                        <Button onClick={handleSubmit} disabled={isLoading}>
+                        <Button
+                            onClick={handleSubmit}
+                            disabled={isLoading || !isConfirmed}
+                        >
                             {isLoading ? "処理中..." : "OK"}
                         </Button>
                     </div>

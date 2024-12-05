@@ -14,14 +14,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="jp">
-      <body className="antialiased min-h-screen">
-        {children}
-        <footer className="fixed bottom-4 left-0 right-0 px-8 pointer-events-none">
+      <body className="antialiased min-h-screen flex flex-col">
+        <main className="flex-grow">
+          {children}
+        </main>
+        <footer className="py-2 px-8 bg-[#F5F6F8]">
           <div className="max-w-4xl mx-auto flex justify-center items-center text-sm text-gray-500 relative">
             <div>© 2024 Yuta Yaginuma</div>
             <a
               href="mailto:temmie0232@gmail.com?subject=シフト管理アプリの問題報告"
-              className="absolute right-0 hover:text-gray-700 transition-colors pointer-events-auto"
+              className="absolute right-0 hover:text-gray-700 transition-colors"
             >
               問題を報告
             </a>
