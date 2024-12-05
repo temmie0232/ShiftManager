@@ -1,9 +1,6 @@
 "use client"
-import { useState, useEffect, use } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Check, Home } from "lucide-react";
-import Link from "next/link";
+import { useState, useEffect } from 'react';
+import { Check } from "lucide-react";
 import CustomCalendar from "@/components/ui/CustomCalendar";
 import { addMonths, startOfMonth } from "date-fns";
 import HomeLink from "@/components/ui/HomeLink";
@@ -93,67 +90,60 @@ export default function ShiftSubmittedPage({ params }: { params: { id: string } 
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-            <div className="max-w-2xl mx-auto space-y-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="p-4 space-y-6">
                 <HomeLink href="/shift/submit" text="従業員選択へ戻る" />
 
-                <Card className="border-2 transition-all duration-300 hover:border-gray-400 hover:shadow-xl">
-                    <CardHeader className="space-y-4">
-                        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-green-100 mb-4">
+                <div className="space-y-6">
+                    <div className="flex items-center space-x-4">
+                        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-green-100">
                             <Check className="w-6 h-6 text-green-600" />
                         </div>
-                        <div className="space-y-2">
-                            <CardTitle className="text-2xl font-bold text-center">
-                                シフト提出済み
-                            </CardTitle>
-                            <CardDescription className="text-center">
+                        <div>
+                            <h1 className="text-2xl font-bold">シフト提出済み</h1>
+                            <p className="text-gray-600">
                                 {nextMonth.getFullYear()}年{nextMonth.getMonth() + 1}月のシフト希望内容
-                            </CardDescription>
+                            </p>
                         </div>
-                    </CardHeader>
+                    </div>
 
-                    <CardContent className="space-y-6">
-                        {isLoading ? (
-                            <div className="text-center py-4">
-                                <div className="inline-block w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-                                <p className="mt-2 text-sm text-gray-600">読み込み中...</p>
-                            </div>
-                        ) : error ? (
-                            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                                {error}
-                            </div>
-                        ) : shiftData && (
-                            <>
-                                {/* 希望時間・日数の表示 */}
-                                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                                    <div className="flex justify-between">
-                                        <span className="text-sm text-gray-600">希望労働時間</span>
-                                        <span className="font-medium">
-                                            {shiftData.min_hours}～{shiftData.max_hours}時間
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-sm text-gray-600">週の希望労働日数</span>
-                                        <span className="font-medium">
-                                            {shiftData.min_days_per_week}～{shiftData.max_days_per_week}日
-                                        </span>
-                                    </div>
+                    {isLoading ? (
+                        <div className="text-center py-4">
+                            <div className="inline-block w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                            <p className="mt-2 text-sm text-gray-600">読み込み中...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                            {error}
+                        </div>
+                    ) : shiftData && (
+                        <>
+                            <div className="bg-white p-4 rounded-lg space-y-3">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">希望労働時間</span>
+                                    <span className="font-medium">
+                                        {shiftData.min_hours}～{shiftData.max_hours}時間
+                                    </span>
                                 </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">週の希望労働日数</span>
+                                    <span className="font-medium">
+                                        {shiftData.min_days_per_week}～{shiftData.max_days_per_week}日
+                                    </span>
+                                </div>
+                            </div>
 
-                                {/* カレンダー表示 */}
-                                <CustomCalendar
-                                    selectedDates={[]}
-                                    onDateSelect={() => { }}
-                                    onWeekdaySelect={() => { }}
-                                    shiftData={calendarData}
-                                    currentMonth={nextMonth}
-                                    className="w-full"
-                                />
-                            </>
-                        )}
-
-                    </CardContent>
-                </Card>
+                            <CustomCalendar
+                                selectedDates={[]}
+                                onDateSelect={() => { }}
+                                onWeekdaySelect={() => { }}
+                                shiftData={calendarData}
+                                currentMonth={nextMonth}
+                                className="w-full"
+                            />
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );
