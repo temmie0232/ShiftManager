@@ -5,7 +5,7 @@ import { Github } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "シフト管理",
-  description: "",
+  description: "シフト管理webアプリケーション",
 };
 
 export default function RootLayout({
