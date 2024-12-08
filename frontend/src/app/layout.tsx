@@ -29,7 +29,6 @@ export default function RootLayout({
             >
               <Github size={20} />
             </a>
-            <div>© 2024 Yuta Yaginuma</div>
             <a
               href="mailto:temmie0232@gmail.com?subject=シフト管理アプリの問題報告"
               className="hover:text-gray-700 transition-colors"
